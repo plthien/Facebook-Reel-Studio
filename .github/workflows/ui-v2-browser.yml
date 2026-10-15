@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: '22'
       - name: Install standalone browser test dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       - name: Validate OpenAPI proposal and database alignment
         run: npm run test:contract
       - name: Install Chromium
