@@ -28,3 +28,9 @@ Status: Design decisions only. BACKED means documented (NOT implemented); EXTEND
 | All screens | Responsive, keyboard focus, drawer Escape | BACKED/DEMO | browser-only; no backend contract | UI15/UI16 |
 
 **Important:** UI demo uses synthetic IDs such as `a2,p2`; production must translate selected asset→immutable variant UUID and Page UUID before POST; do not pass these demo IDs to API. The 100k sizes are synthetic design fixtures, not measured performance.
+
+| Video Library | Transfer 50/100/105 selections | EXTEND/DEMO | P3 max 100 target contract, no silent truncation, 105 remains selected and blocked | F1-50/100/105 |
+| Publish | Real dates + 10-min demo lead, UTC, injected clock | EXTEND/DEMO | P3 backend configurable min_lead_minutes, DATE parse + 422 | F2-Past/Now/Soon/Invalid |
+| Publish Quick | Page chips canonical, Page select disabled on Review | BACKED/DEMO | P3 targets[].page_id must equal operator-approved Page selection | F3-Quick |
+| Publish Batch | Exact duplicate intent blocked, distinct occurrences allowed | EXTEND | P3 422 DUPLICATE_INTENT, page+variant+UTC+overrides | F4-Duplicate |
+| Publish Review | Edit invalidates successful preview fingerprint | EXTEND/DEMO | P3 server recompute fingerprint and idempotency, 409/422 | F4-Stale |
