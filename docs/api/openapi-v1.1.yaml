@@ -493,19 +493,24 @@
             "name": "sort",
             "in": "query",
             "required": false,
-            "description": "Allowlisted stable sort",
+            "description": "Allowlisted stable global sort before filter-bound cursor; ties resolved by internal UUID",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "posted_at_desc"
+              ],
+              "default": "posted_at_desc"
             }
           },
           {
             "name": "metric_sort",
             "in": "query",
             "required": false,
-            "description": "P0-verified metric only; unavailable values last",
+            "description": "DEFERRED: do not enable until provider P0 capability and P2 comparable Reel-level snapshot metrics verified",
             "schema": {
               "type": "string"
-            }
+            },
+            "deprecated": true
           },
           {
             "name": "limit",
@@ -672,9 +677,15 @@
             "name": "sort",
             "in": "query",
             "required": false,
-            "description": "Allowlisted stable sort",
+            "description": "Allowlisted stable global sort before filter-bound cursor; ties resolved by internal UUID",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "scheduled_at_desc",
+                "scheduled_at_asc",
+                "created_at_desc"
+              ],
+              "default": "scheduled_at_desc"
             }
           },
           {
