@@ -23,3 +23,18 @@
 | STATIC01 | JS generated in mockup | JavaScript compiled via `new Function(script)` | PASS (syntax only; not browser execution) |
 
 Required future evidence: run the Playwright file under `tests/ui-v2.spec.js` with local HTTP server at port 8765 and browser installed, capture both viewport screenshots into `mockups/screenshots/` (paths not present until run). Document exact run command/CI logs, browser versions, failures and reviewed HEAD SHA. No claim of E2E/visual PASS before this evidence exists.
+
+
+### Executed 2026-10-15: V8 JavaScript functional smoke, no browser
+
+Loaded **actual PR #3 HTML** through GitHub connector, extracted script, executed with stub DOM/location and asserted:
+
+- 20 asset IDs / 10 Page choices / exactly 60 explicit targets: PASS; zero invalid targets.
+- Review third page renders 10 targets (51–60): PASS.
+- Caption on target 51 persists across composer step navigation: PASS.
+- 2026-10-21 19:30 Asia/Ho_Chi_Minh converts to 2026-10-21T12:30:00.000Z: PASS.
+- Change one target to blocked Page: invalid count 1: PASS.
+- Adding 101st target: blocked at 100 with explicit message: PASS.
+- Default cursor demo returns bounded 25 records: PASS.
+
+These tests **do not cover browser layout, focus, DOM events, actual Playwright, screenshot or Meta/API calls**. Those remain NOT_RUN/BLOCKED_EXTERNAL.
