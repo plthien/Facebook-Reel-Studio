@@ -170,3 +170,17 @@ test('VIS-01 seven targeted Chromium screenshots at 1440 and 1024',async({page})
   await page.goto(URL);
  }
 });
+
+test('PERF-01 global synthetic sorts generate bounded records without 100k arrays',async({page})=>{
+ for(const [screen,index,kind,sort] of [[2,2,'library','filename_asc'],[5,5,'reels','posted_at_desc'],[7,7,'activity','created_at_desc']]){
+  await go(page,index);
+  const result=await page.evaluate(({kind,sort})=>{
+   state.sortBy[kind]=sort;resetCursor();let count=0;
+   const previous=generators[kind];generators[kind]=i=>{count++;return previous(i);};
+   try{const result=listData(kind);return {count,rows:result.rows.length,limit:LIMITS[kind],cursor:state.cursor};}
+   finally{generators[kind]=previous;}
+  },{kind,sort});
+  expect(result.rows).toBe(25);expect(result.count).toBeLessThanOrEqual(26);
+  expect(result.limit).toBeGreaterThanOrEqual(10000);
+ }
+});
