@@ -164,3 +164,23 @@ test('18 screenshot evidence: 9 views each at 2 resolutions + critical workflows
  await page.keyboard.press('Escape');
  await nav(page,7);await page.getByRole('button',{name:'Chi tiết'}).nth(4).click();await page.screenshot({path:path.join(root,'uncertain-detail.png'),fullPage:true});
 });
+
+test('19 Quick cannot split one selected video across Pages, Batch IDs survive toggle',async({page})=>{
+ await nav(page,3);
+ await page.evaluate(()=>{state.composerAssets=['a2','a3','a4'];state.mode='batch';state.targets=[];state.step=1;draw();});
+ await page.getByRole('button',{name:/Quick Publish/}).click();
+ expect(await page.evaluate(()=>state.composerAssets.length)).toBe(3);
+ await page.getByRole('button',{name:'Tiếp',exact:true}).click();
+ await page.getByRole('button',{name:/Review 2 target/}).click();
+ await expect(page.getByLabel('Video quick:a2:p2')).toBeDisabled();
+ await expect(page.getByLabel('Page quick:a2:p2')).toBeDisabled();
+ await page.evaluate(()=>changeTarget('quick:a2:p2','assetId','a3'));
+ expect(await page.evaluate(()=>state.targets[0].assetId)).toBe('a2');
+ await page.evaluate(()=>{state.targets[0].assetId='a3';draw();});
+ expect(await page.evaluate(()=>checkTargets()[0].errors)).toContain('QUICK_ASSET_MISMATCH');
+ await expect(page.getByRole('button',{name:'Xác nhận intent (DEMO)'})).toBeDisabled();
+ await page.getByRole('button',{name:'Sửa assignments'}).click();
+ await page.getByRole('button',{name:'Quay lại'}).click();
+ await page.getByRole('button',{name:/Batch Publish/}).click();
+ expect(await page.evaluate(()=>state.composerAssets.join(','))).toBe('a2,a3,a4');
+});
