@@ -20,6 +20,8 @@ jobs:
           node-version: '22'
       - name: Install standalone browser test dependencies
         run: npm install --no-audit --no-fund
+      - name: Validate OpenAPI proposal and database alignment
+        run: npm run test:contract
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Execute PR3 regressions and screenshots
