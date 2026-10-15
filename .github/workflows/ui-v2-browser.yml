@@ -4,6 +4,9 @@ on:
     branches:
       - design/ui-mockup-v2
   workflow_dispatch:
+concurrency:
+  group: ui-v2-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
