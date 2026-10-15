@@ -1,40 +1,35 @@
-# UI v2 Acceptance / execution ledger
-**Status: test specifications, not evidence of passing browser tests.** Browser screenshots are **NOT_RUN** because the GitHub-linked mockup was edited through the connector and no current-commit checkout/browser session was available in the execution environment.
+# UI v2 — executed acceptance & regression ledger
+**Result: 19/19 Playwright PASS, 0 FAIL** on code/test commit `59bb8a667861d1442bc8ff023abbcaa335328b98` · [GitHub Actions #38720044131](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38720044131).
 
-| Test ID | Scenario | Expected | Actual status |
-|---|---|---|---|
-| UI01 | Navigate Dashboard, Pages, Library, Publish, Calendar, Reels, Analytics, Activity, Settings | All render, nav active | NOT_RUN |
-| UI02 | Library List(default) ↔ Grid | Same bounded fixtures | NOT_RUN |
-| UI03 | Search, status/Page filters, next/previous, empty result | Deterministic cursor demo and empty state | NOT_RUN |
-| UI04 | Select on first page, move next, select again, back | Selected IDs retained | NOT_RUN |
-| UI05 | Transfer selected assets to batch | Exact IDs, no silent trim | NOT_RUN |
-| UI06 | Quick Publish 1 video and 2 Pages | Exactly 2 target identities | NOT_RUN |
-| UI07 | Edit caption/title/schedule on two targets, move steps | Changes persist by target ID | NOT_RUN |
-| UI08 | Demo sample: 20 videos / 10 Pages / 60 explicit targets | Count 60, not 200; review pages 1–3 | NOT_RUN |
-| UI09 | Edit item 55, review page 1 again | Item 55 maintained; all validated | NOT_RUN |
-| UI10 | Attempt 101st target | Explicit limit; never silently truncate | NOT_RUN |
-| UI11 | Invalid Page/asset; HTTP 409/422 mock | Disable confirm, show conflict/error | NOT_RUN |
-| UI12 | Open UNCERTAIN job | Only reconcile detail, never retry | NOT_RUN |
-| UI13 | All-result selection and drag-reschedule | Unsupported/disabled, no data mutations | NOT_RUN |
-| UI14 | Imported Reel, N/A, stale, measured zero, lifetime | Correct labels; mock origin disclosed | NOT_RUN |
-| UI15 | Dialog Escape, focus, keyboard traversal | Accessible close and cycling | NOT_RUN |
-| UI16 | Desktop 1440×900, tablet 1024×768 | Screenshots and no overflow blocking workflows | NOT_RUN |
-| UI17 | JS console errors | Zero uncaught runtime errors | NOT_RUN |
-| STATIC01 | JS generated in mockup | JavaScript compiled via `new Function(script)` | PASS (syntax only; not browser execution) |
+Actual CI commands: `npm install --no-audit --no-fund`, `npm run test:contract`, `npx playwright install --with-deps chromium`, `npm run test:ui`. Host: GitHub-hosted Ubuntu 24.04, Node 22, Playwright 1.55.0, Chromium 140.0.7339.16 (build 1187). Test duration 16.1 s. No actual Meta HTTP operations.
 
-Required future evidence: run the Playwright file under `tests/ui-v2.spec.js` with local HTTP server at port 8765 and browser installed, capture both viewport screenshots into `mockups/screenshots/` (paths not present until run). Document exact run command/CI logs, browser versions, failures and reviewed HEAD SHA. No claim of E2E/visual PASS before this evidence exists.
+| Test | Browser behavior asserted | Actual |
+|---|---|---|
+| UI01 | Navigate all nine screens, zero uncaught JS errors | PASS |
+| UI02 | Library List/Grid toggle, search empty state | PASS |
+| UI03 | Cursor next/back, select 25+25, filter selection persistence | PASS |
+| UI04 | F1: 50 and 100 assets transfer intact; 105 blocked without loss | PASS |
+| UI05 | F3: Quick Page chips and read-only Page identity, caption/schedule persistence | PASS |
+| UI06 | Quick add/remove Pages; switch mode without stale targets | PASS |
+| UI07 | 20 videos + 10 Pages = exactly 60 explicit targets (25+25+10) | PASS |
+| UI08 | Target 51 caption/title/schedule survives review and step navigation | PASS |
+| UI09 | F2 strict date parse, past, now, 5-min lead, valid 10-min, UTC | PASS |
+| UI10 | F4 exact duplicate on late page blocked; different occurrence permitted | PASS |
+| UI11 | Invalid Page/asset, 101st target refusal with visible message | PASS |
+| UI12 | Changed intent invalidates preview; no real job created by demo | PASS |
+| UI13 | 409/422 plus 401/403/429/503 simulated API error controls | PASS |
+| UI14 | UNCERTAIN has reconcile info, no blind retry; drawer Escape | PASS |
+| UI15 | Imported Reel without fake local asset link; metric N/A | PASS |
+| UI16 | Calendar Agenda/Week/Month; no drag-reschedule | PASS |
+| UI17 | 1440/1024 browser viewport no application-level horizontal overflow; drawer scroll | PASS |
+| UI18 | 23 screenshot images generated from Chromium at required views/workflows | PASS |
+| UI19 | Quick video canonical across Pages; switching to Batch retains all asset IDs | PASS |
+| CONTRACT01 | Parse proposed OpenAPI 3.1 JSON-encoded YAML 1.2; 8 routes, 79 refs; schema/legacy checks | PASS |
 
+## Captured screenshots
+All **nine screens** at **1440×900 and 1024×768** (18 pixel-exact viewport PNGs), plus `library-grid.png`, `publish-review-60.png`, `publish-invalid.png`, `reel-detail.png`, `uncertain-detail.png` (5 full-page PNGs). Files are committed under `mockups/screenshots/`; [Action artifact/run evidence](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38720044131).
 
-### Executed 2026-10-15: V8 JavaScript functional smoke, no browser
+## Baseline failures and closure
+Before repair, F1 selected 105→100 silent transfer, F2 accepted 2020 date, F3 chips p2/p3 mismatched targets p4/p3, F4 duplicate marked warning and confirm allowed. Reproduced in executable JavaScript against baseline HEAD; all repaired and confirmed by V8 logic tests + browser regression.
 
-Loaded **actual PR #3 HTML** through GitHub connector, extracted script, executed with stub DOM/location and asserted:
-
-- 20 asset IDs / 10 Page choices / exactly 60 explicit targets: PASS; zero invalid targets.
-- Review third page renders 10 targets (51–60): PASS.
-- Caption on target 51 persists across composer step navigation: PASS.
-- 2026-10-21 19:30 Asia/Ho_Chi_Minh converts to 2026-10-21T12:30:00.000Z: PASS.
-- Change one target to blocked Page: invalid count 1: PASS.
-- Adding 101st target: blocked at 100 with explicit message: PASS.
-- Default cursor demo returns bounded 25 records: PASS.
-
-These tests **do not cover browser layout, focus, DOM events, actual Playwright, screenshot or Meta/API calls**. Those remain NOT_RUN/BLOCKED_EXTERNAL.
+**Not performed:** real Meta OAuth/uploads/finishing/verification/insights, DB schema migrations, worker/queue tests, frontend production implementation, backend database performance; those require later gates. Screenshots and synthetic scale do not prove Meta capability or production load performance. OpenAPI syntax/internal references passed; additional third-party standards lint and generated FastAPI parity remain future backend tasks.

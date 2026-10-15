@@ -17,3 +17,6 @@ No drag/reschedule PATCH in P0–P3 UI v2, no query-wide selection, no inferred 
 
 ## Approval gate
 These are proposed design contracts only. User approval + migration/API contract tests are mandatory before implementing them. P0 Meta feasibility is a separate live gate.
+
+## Final UI workflow clarification (G3 candidate)
+Quick Publish uses a single selected video/immutable variant for all Page chips; neither the Page nor the video identity can be reassigned in Review. User may adjust caption, title and scheduled time by target. Moving from Batch to Quick does not truncate previously selected Batch asset IDs; returning to Batch preserves asset choices but begins with a fresh explicit target assignment set. This is a design reference, **PENDING backend approval**.

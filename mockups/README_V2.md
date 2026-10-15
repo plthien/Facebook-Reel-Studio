@@ -1,13 +1,21 @@
-# Facebook Reels Studio · UI v2 (PR #3)
-Open [interactive HTML](facebook-reels-studio-v2.html) locally as a standalone design demo.
+# Facebook Reels Studio UI v2 — G3 review reference
 
-**Not implemented:** OAuth, Meta publishing, production API/DB, uploads, analytics synchronization. Synthetic design data only. 50 Pages / 10k assets / 100k Reels / 100k jobs are **scale labels and deterministic lazy fixture ranges**, not benchmark results or loaded record arrays.
+- **[Standalone interactive HTML](facebook-reels-studio-v2.html)** — nine-screen design reference; no runtime backend, OAuth or real publish.
+- **[23 browser screenshots](screenshots/)** — 18 exact viewport captures (9 screens × 1440×900 / 1024×768) and 5 critical-flow full-page captures.
+- **[UI/API contract matrix](../docs/ui/UI_V2_SCREEN_CONTRACT_MATRIX.md)** · **[OpenAPI proposal](../docs/api/openapi-v1.1.yaml)** · **[Schema amendments](../docs/database/SCHEMA_AMENDMENTS_V1_1.md)** · **[Freeze candidate](../docs/ui/UI_V2_FREEZE.md)**.
 
-Nine screens: Dashboard, Fanpages, Video Library (default List; Grid toggle; search/filter; cursor-demo and explicit ID selection), Publish Composer (Quick or explicit-assignment Batch; sample **20 assets/10 Pages/60 targets**; max 100 targets, per-target title/caption/local-time/UTC, full paginated Review, demo validation without backend), Calendar (read-only Agenda/Week/Month), Published Reels (origin provenance, latest lifetime metrics), Analytics (N/A/STALE/zero separated), Activity/Queue (UNCERTAIN reconcile only), Settings.
+## Test locally (Node 22)
+```bash
+npm ci
+npx playwright install --with-deps chromium
+npm run test:contract
+npm run test:ui
+```
+The Playwright config serves the standalone HTML at `http://127.0.0.1:8765` with `python3 -m http.server`. No production framework required. GitHub Actions runs these checks on push to PR #3: [19/19 browser PASS and contract PASS](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38720044131). The passing run used `npm install` to install the now-committed package lock; clean checkouts can use `npm ci`.
 
-Pages/asset IDs in this demo are simulated `p2`/`a2`; production uses owned Page UUID and content variant UUID. The UI displays Asia/Ho_Chi_Minh and converts to UTC. It never makes real writes. Production requires server-side cursor pagination (25/50/100), caching and request cancellation, lazy previews, indexed filter/sort, and backend analytics aggregates.
+## Design operations & limits
+50 Pages, 10,000 assets, 100,000 Reels and 100,000 jobs are **deterministic lazy synthetic fixtures**, not production benchmark data. Library defaults to List with Grid switch; cursor simulation, filter/search and explicit selected IDs. Transfer preserves all 50/100 selected assets; for 105 it shows a blocking error and keeps 105 for correction. Batch adds one explicit target per assignment, **never N×M**; demo 20 assets, 10 Pages, 60 explicit targets with all-target Review paging 25+25+10. Max 100 atomic targets. Quick mode fixes one video and selected Pages; per-target caption, title, local scheduled time and UTC remain editable. Strict past/invalid/too-soon validation (configurable mock 10-minute lead), exact duplicate blocking and intent-change revalidation. Confirmation always says **DEMO ONLY, 0 jobs created**.
 
-See [backend audit](UI_V2_BACKEND_CONTRACT_AUDIT.md), [screen/contract matrix](../docs/ui/UI_V2_SCREEN_CONTRACT_MATRIX.md), [ADR](../docs/adr/ADR_UI_V2_API_EXTENSIONS.md), [API proposals](../docs/api/INTERNAL_API_CONTRACTS_V1_1.md), [test ledger](../docs/test/UI_V2_ACCEPTANCE_TESTS.md) and [freeze candidate](../docs/ui/UI_V2_FREEZE.md). Proposed contracts await review. No evidence of Playwright PASS or actual screenshots yet.
+Published Reels do not invent imported asset attribution; unavailable, stale and measured zero metrics differ; Analytics never assumes P0-supported values; Calendar read-only; Activity UNCERTAIN requires remote reconciliation. 401/403/409/422/429/503 are local mock states, not actual HTTP responses. All requested backend API/database changes are **pending review**. Production requires authenticated Meta adapter/live P0 gate, server-side stable cursor filtering, query cache/cancellation, lazy previews and verified metrics. No production P1–P3 implementation on this branch.
 
-### Final-repair policy
-F1: 105 selected assets are **not truncated**; transfer is blocked with a visible message and the selection preserved. F2: date validation rejects past, impossible and too-soon schedules (demo min lead 10 minutes, injectable test clock). F3: Quick Page chips are the only source of Page assignments; Page dropdown is disabled in Review. F4: exact duplicates are blocked; editing intent revokes prior preview. Confirmation requires successful validation of the current intent and never creates jobs.
+See [review report](../docs/reviews/UI_V2_FINAL_REVIEW.md), [acceptance evidence](../docs/test/UI_V2_ACCEPTANCE_TESTS.md) and [backend audit](UI_V2_BACKEND_CONTRACT_AUDIT.md).

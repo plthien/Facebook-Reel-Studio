@@ -1,35 +1,22 @@
-# UI v2 Design Freeze Candidate
-**Status: CANDIDATE — NOT APPROVED / BROWSER QA PENDING**
+# Facebook Reels Studio — UI v2 G3 freeze candidate
+**Status: G3_READY_FOR_REVIEW — USER APPROVAL PENDING. NOT G3_APPROVED.**
 
-Repository: plthien/Facebook-Reel-Studio
-Branch: `design/ui-mockup-v2`, PR #3
-Base audit PR3 HEAD: `d85bb4fed66584db098786852937dc30011895ad`
-Main synced into PR3 at: `6970a19da388f5d7374f9a99d5440045314f5199`
-First UI repair commit: `2ee3c2e72d950e29d582dcbf3c92618d257f64ac`
+- Repository: `plthien/Facebook-Reel-Studio`; existing PR [#3](https://github.com/plthien/Facebook-Reel-Studio/pull/3), branch `design/ui-mockup-v2`; main untouched, PR unmerged.
+- **Exact browser-tested code/test commit:** `59bb8a667861d1442bc8ff023abbcaa335328b98`. Screenshot/lockfile evidence originally committed in `e6e3df345508d982686e1108e07e7b2ebb51aa75`. Subsequent documentation-only freeze metadata is not itself a production build; use the live PR HEAD for final Git identity.
+- **Browser evidence:** [successful GitHub Actions run #38720044131](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38720044131); **19/19 Playwright PASS**, contract validator PASS (8 OpenAPI routes, 79 local schema references). GitHub-hosted Ubuntu 24.04, Node 22, Playwright 1.55.0, bundled Chromium 140.0.7339.16 (build 1187).
+- **Screenshots:** 23 real Chromium PNGs under [`mockups/screenshots/`](../../mockups/screenshots) on this PR branch: 9 screens at **1440×900**, 9 at **1024×768**, and Library Grid, Review 60, invalid-target Review, Reel drawer, UNCERTAIN drawer. The 18 standard screenshots have exact viewport pixel dimensions; the 5 critical-workflow images are full-page. [Run artifact](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38720044131) also contains evidence and HTML report.
 
-Exact final reviewed SHA: **NOT LOCKED** until last changes and Playwright run are verified. A SHA cannot be predeclared in a changing branch; check HEAD at freeze approval.
+## G3 screen/workflow coverage
+Dashboard, Fanpages, Video Library, Quick/Batch Publish, Calendar, Published Reels, Analytics, Activity/Queue, Settings (9/9). Grid/List, bounded simulated cursor, explicit selections, 50/100/105 selection, 100 targets limit, 20-video/10-Page/60-target explicit fixture, all-target review in pages 25+25+10, stable caption/title/time, local (+07:00) → UTC, past/invalid/too-soon checks, canonical Quick video/Page identities, duplicate blocking, changed-intent invalidation, 409/422/401/403/429/503 demo states, UNCERTAIN reconciliation-only, unsupported feature disabled, imported Reel without inferred asset linkage, inaccessible metrics ≠ zero.
 
-All 9 screens scoped: Dashboard, Fanpages, Library, Publish, Calendar, Reels, Analytics, Activity, Settings. Governing plan: `docs/plans/UI_V2_CONTRACT_FREEZE_P0_P3_EXECUTION_PLAN.md`; ADR, API reference, UI matrix, acceptance tests included as **pending** contractual proposals.
+## Governing proposed contracts
+`docs/adr/ADR_UI_V2_API_EXTENSIONS.md`, `docs/api/INTERNAL_API_CONTRACTS_V1_1.md`, `docs/api/openapi-v1.1.yaml` (OpenAPI 3.1, JSON-encoded YAML 1.2), `docs/database/SCHEMA_AMENDMENTS_V1_1.md`, technical spec and P0–P3 plan. Database target identity: `target_index`, `client_target_id`, the two per-batch unique keys; old `UNIQUE(batch_id,page_id)` eliminated in proposed DDL. Every target is independently validated and submitted atomically with an idempotency fingerprint; **no actual backend or migration implemented**.
 
-Repair highlights: explicit assignments vs N×M, stable per-target editable drafts, full 25-row Review paging and all-target validation, 100 max atomic batch, local+UTC, immutable-job proposal, N/A/unavailable semantics, no silent imported asset association, lazy synthetic fixtures rather than 100k object allocations.
+## Actual gates and limitations
+- **PASS:** baseline F1–F4 reproduced, repaired; V8 functional regression after changes; Playwright 19/19; viewport-size screenshots visually inspected; no app-level horizontal overflow found at tested viewports; browser runtime errors test passed; offline OpenAPI JSON/YAML 1.2 syntax/internal-ref/schema consistency check passed.
+- **NOT_RUN:** live Meta API operations, PostgreSQL/Alembic migrations, worker/queue testing, production React implementation, true backend query/capacity benchmarks and real P0 metric support.
+- **BLOCKED_EXTERNAL (separate P0 gate):** real owned-Page Meta authorization/publish/insights evidence.
+- **DEFER:** selection across all filtered results, reschedule PATCH/drag, unsupported metrics, inferred imported media association, cross-Page reporting not grounded in proven metric data.
+- **Awaiting approval:** all proposed API/schema decisions and this G3 implementation reference. **Do not merge PR #3 automatically.**
 
-Deferred: All-result bulk query selection, drag reschedule, unproven metrics, automated import-asset matching, non-P0-approved API capabilities.
-
-Execution evidence: JS syntax compile PASS for new script, connector commits succeeded. Browser/Playwright/visual screenshots NOT_RUN and thus this **is not a QA PASS**. P0 live Meta external verification BLOCKED_EXTERNAL. No real auth/upload/publish/job/metric operation was tested or implemented.
-
-Freeze decision: **BLOCKED** for formal UI approval until browser tests, screenshots, full diff self-review and user approval. No automatic PR merge.
-
-
-### Executed 2026-10-15: V8 JavaScript functional smoke, no browser
-
-Loaded **actual PR #3 HTML** through GitHub connector, extracted script, executed with stub DOM/location and asserted:
-
-- 20 asset IDs / 10 Page choices / exactly 60 explicit targets: PASS; zero invalid targets.
-- Review third page renders 10 targets (51–60): PASS.
-- Caption on target 51 persists across composer step navigation: PASS.
-- 2026-10-21 19:30 Asia/Ho_Chi_Minh converts to 2026-10-21T12:30:00.000Z: PASS.
-- Change one target to blocked Page: invalid count 1: PASS.
-- Adding 101st target: blocked at 100 with explicit message: PASS.
-- Default cursor demo returns bounded 25 records: PASS.
-
-These tests **do not cover browser layout, focus, DOM events, actual Playwright, screenshot or Meta/API calls**. Those remain NOT_RUN/BLOCKED_EXTERNAL.
+The large dataset numbers are **synthetic fixture scope**, not benchmark performance; production must use server-side cursor pagination, indexed filtering and sorting, request cancel/cache, and backend analytics aggregates. Full-page Playwright screenshots may place CSS sticky sidebar at a stitched scroll position; compare exact viewport captures for visual alignment.
