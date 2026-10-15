@@ -33,3 +33,28 @@ All **nine screens** at **1440×900 and 1024×768** (18 pixel-exact viewport PNG
 Before repair, F1 selected 105→100 silent transfer, F2 accepted 2020 date, F3 chips p2/p3 mismatched targets p4/p3, F4 duplicate marked warning and confirm allowed. Reproduced in executable JavaScript against baseline HEAD; all repaired and confirmed by V8 logic tests + browser regression.
 
 **Not performed:** real Meta OAuth/uploads/finishing/verification/insights, DB schema migrations, worker/queue tests, frontend production implementation, backend database performance; those require later gates. Screenshots and synthetic scale do not prove Meta capability or production load performance. OpenAPI syntax/internal references passed; additional third-party standards lint and generated FastAPI parity remain future backend tasks.
+
+
+## Additional 16 targeted Playwright test groups — executed PASS
+Run [#38726566010](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38726566010), source HEAD `1de100918abe00fa0776c36e8e63305a113ac208` before screenshot auto-commit. **35/35 PASS, 0 FAIL** including all previous 19; `npm run test:contract` PASS. Executed via GitHub Actions: `npm install --no-audit --no-fund`, `npm run test:contract`, `npx playwright install --with-deps chromium`, `npm run test:ui`. No P0 live Meta tests.
+
+| Test IDs | Actual assertions | Result |
+|---|---|---|
+| QP-01 | All 50 rows rendered, 45 selectable ACTIVE, 5 disabled | PASS |
+| QP-02–03 | p50 searched via real UI, exactly one Quick target, immutable Page Review | PASS |
+| QP-04–06 | Filter/search hiding does not clear chosen Pages, restore and deselect exact target | PASS |
+| QP-07–08 | Bulk 45 ACTIVE, all blocked/expired disabled | PASS |
+| QP-09–10 | Per-target caption/title/time survive filter, add Page; canonical identity | PASS |
+| SORT-01–03 | Library global newest/oldest/filename across cursor pages | PASS |
+| SORT-04–05 | Sort resets cursor but preserves search and explicit selected asset IDs | PASS |
+| SORT-06–07 | Reels chronological paging, views sort option disabled/gated | PASS |
+| SORT-08–09 | Jobs schedule asc/desc and created_at desc across pages | PASS |
+| SORT-10–12 | No duplicate/skip across pages, stable order and independent screen sort choices | PASS |
+| NAV-01–03 | Browser Back/Forward restores Library/Reels with sidebar and hash sync | PASS |
+| NAV-04–05 | Direct #publish, invalid hash safely falls back Dashboard | PASS |
+| NAV-06/08 | Same route clicks do not push extra history; route change closes drawer overlay | PASS |
+| NAV-07/09 | Publishing draft survives Back/Forward; no runtime JS errors | PASS |
+| VIS-01 | 14 new Chromium screenshots, 7 target workflows at two viewports | PASS |
+| PERF-01 | 25-row global sorted page uses at most 26 generated fixture records; avoids materializing 10k/100k dataset for default paging | PASS |
+
+Prior **19 tests remain PASS** (F1–F4, 60 target review, intent fingerprint, Meta mock-only controls, accessibility, 9 screens). New screenshots: quick-selector, quick-p50, quick-45-pages, library-filename-sort, reels-sort-gated, activity-schedule-sort, back-restored-library, each at 1440×900 and 1024×768. **37 screenshot files** total. Inspected actual browser renders for p50/45 selector, status separation, Activity sort and Reels capability gating. No production performance claim based on fixtures.

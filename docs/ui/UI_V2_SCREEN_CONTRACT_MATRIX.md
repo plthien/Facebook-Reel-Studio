@@ -42,3 +42,16 @@
 | Drawer close/Escape, tablet nav labels | UI | No backend operation | Focus management and responsive table scroll | UI14, UI17 | DEMO |
 
 **Reviewed evidence:** [19/19 Chromium tests, run #38720044131](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38720044131), [test ledger](../test/UI_V2_ACCEPTANCE_TESTS.md), [OpenAPI proposed reference](../api/openapi-v1.1.yaml), [schema DDL proposal](../database/SCHEMA_AMENDMENTS_V1_1.md). Production mapping of `aN` to immutable content variant UUID and `pN` to internal Page UUID is mandatory; demo IDs never belong in real API POST. The 50/10k/100k fixture counts are design targets only.
+
+
+## G3 targeted repair traceability (2026-10-15)
+
+| UI/control | Phase | Existing contract, request/response | State/DB validation | Test | Status |
+|---|---|---|---|---|---|
+| Quick Page Selector search, filter, selected count, checkbox & scoped eligible selection | P1/P3 | `GET /pages?q=&status=&group_label=&limit=&cursor=`; retrieve **all authorized Pages** across all cursor pages before local select-all | 50 known Pages, 45 ACTIVE, 5 BLOCKED_AUTH/EXPIRED disabled; canonical `composerPages[]` → one Quick target each; capability revalidated on P3 submit | QP-01–QP-10 | BACKED/DEMO, optional local group EXTEND |
+| Library sort menu and cursor controls | P1 | `GET /media?sort=created_at_desc|created_at_asc|filename_asc`; filter+stable sort before cursor | Deterministic global fixture permutation, no 10k-object allocation; cursor/history reset, selection/search retained | SORT-01–05,10–12, PERF-01 | EXTEND/DEMO |
+| Published Reels sort and disabled metric option | P2 | `GET /reels?sort=posted_at_desc` | Reel-level latest lifetime views sorting DEFER until P0 proof, N/A/freshness semantics; no cross-level metric | SORT-06–07 | EXTEND/DEMO; metric DEFER |
+| Activity scheduled/created sort | P1/P3 | `GET /publish-jobs?sort=scheduled_at_desc|scheduled_at_asc|created_at_desc` | UTC values with stable per-ID tie-break, projected local schedule and createdAt fixture | SORT-08–12, PERF-01 | EXTEND/DEMO |
+| Sidebar route clicks, direct hash, Back/Forward, drawer close | Frontend only | Hash router; **no new API** | Draft assets, mode, explicit targets and overrides preserved; invalid hash safely replaced with dashboard | NAV-01–09 | BACKED/DEMO |
+
+Updated contract sort allowlists are proposals only. Screen history is frontend-only. Query-wide Library result selection and unsanctioned Meta metrics remain DEFERRED.

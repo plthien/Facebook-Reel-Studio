@@ -1,4 +1,4 @@
-# PR #3 final self-review — G3_READY_FOR_REVIEW
+# PR #3 final self-review — G3_READY_FOR_APPROVAL
 Date: 2026-10-15 · Branch `design/ui-mockup-v2` · **Approval pending; not merged.**
 
 ## Baseline reproduced on 456b377b8dcc3b0696ff544fe17278e9d3165a86
@@ -26,3 +26,14 @@ The PR contains docs/spec, ADR, OpenAPI, schema proposal, interactive HTML, Play
 Deferred: cross-query select-all, calendar reschedule PATCH, speculative Meta metrics, inferred imported asset links. Remaining dependency: user approval for API/schema amendments and G3 freeze; separate P0 live capability gate blocks subsequent runtime implementation. No known F1–F4 blocker remains in the tested prototype.
 
 **Decision: G3_READY_FOR_REVIEW (not G3_APPROVED).**
+
+
+## Follow-up independent self-review — 3 final targeted UI issues (2026-10-15)
+- **ISSUE 1 PASS:** Removed `slice(0,12)` from Quick Pages; 45 ACTIVE selectable, 5 forbidden/expired visible and disabled, p50 searchable/selectable with real browser interactions. State canonical; per-target edits and hidden selections survive filters. Scoped select-all operates on all 50 loaded Pages, not unbounded Library matches; production requires complete authorized Pages retrieved via cursor.
+- **ISSUE 2 PASS:** Three allowlisted Library sorts, one shipping-proposed Reel post sort (metric sort disabled), three Jobs sorts. Deterministic arithmetic rank mapping sorts the **whole fixture domain** before cursor, with no 100k persistent arrays. Correct sort reset, stable independent sortBy keys, retained selection/filter. Fixtures use explicitly defined timestamp/filename indices. Added created_at column in jobs and filename in assets so sorting is visible.
+- **ISSUE 3 PASS:** Direct hash, Back/Forward, invalid hash fallback, duplicate history prevention, matching active sidebar/title, closed drawers, retained Quick/Batch drafts. No production router/library.
+- **Visual second pass:** Viewed 1024x768 p50 screen and 1440x900 45-Page, Reels gated sort and Activity sort screenshots; corrected Meta ID cramped with names using block meta line and replaced Batch-only guidance in Quick.
+- **Regressions:** [GitHub Actions #38726566010](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38726566010) 35/35 Playwright PASS (19 original + 16 targeted), contract validation PASS 8 routes/79 references. 37 committed Chromium screenshots.
+- **Scope:** UI HTML, standalone browser tests, Playwright config, proposed API/OpenAPI sort allowlists, six UI reference docs and regenerated screenshots only. No real backend, P0 integration, migration, PR merge, new branch or unrelated rewrite. P0 remains BLOCKED_EXTERNAL. Synthetic capacity is **not** backend capacity evidence.
+
+**Final decision: G3_READY_FOR_APPROVAL; user must approve before merge.**

@@ -19,3 +19,11 @@ The Playwright config serves the standalone HTML at `http://127.0.0.1:8765` with
 Published Reels do not invent imported asset attribution; unavailable, stale and measured zero metrics differ; Analytics never assumes P0-supported values; Calendar read-only; Activity UNCERTAIN requires remote reconciliation. 401/403/409/422/429/503 are local mock states, not actual HTTP responses. All requested backend API/database changes are **pending review**. Production requires authenticated Meta adapter/live P0 gate, server-side stable cursor filtering, query cache/cancellation, lazy previews and verified metrics. No production P1–P3 implementation on this branch.
 
 See [review report](../docs/reviews/UI_V2_FINAL_REVIEW.md), [acceptance evidence](../docs/test/UI_V2_ACCEPTANCE_TESTS.md) and [backend audit](UI_V2_BACKEND_CONTRACT_AUDIT.md).
+
+
+## G3 targeted updates (Page Selector, sorting, browser history)
+- **Quick Page Selector:** Search all 50 loaded Page entries by name/internal ID/Meta ID; 45 ACTIVE eligible, 5 expired/blocked disabled. Group/status filters, visible selected count, scrollable checkbox list, full selected-Pages summary, scoped select-all/clear; p50 selectable. Existing Page picks and caption/title/time survive filters and screen navigation.
+- **Sorting controls:** Library newest/oldest/filename; Reels newest only, views sort disabled pending Meta P0/P2; Activity schedule newest/oldest and job creation newest. Synthetic fixtures use lazy arithmetic global sort before cursor, **not client sorting the first 25 rows**; production uses existing proposed API sorting and UUID-tie-breaking server-side. No 100k records allocated for default page/sort.
+- **Browser routes:** Direct #publish, Back, Forward and invalid hash are supported without losing unsent drafts or keeping stale drawer overlays.
+- **Reproducible QA:** `npm ci && npx playwright install --with-deps chromium && npm run test:contract && npm run test:ui`. [GitHub Actions #38726566010](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38726566010): **35/35 Chromium tests PASS**, contract PASS; **37 PNG screenshots** in `mockups/screenshots/`, including 14 new two-viewport targeted screenshots.
+- This is still a standalone demo reference. No real Meta or P1–P3 backend was implemented.
