@@ -154,7 +154,7 @@ test('18 screenshot evidence: 9 views each at 2 resolutions + critical workflows
  const root='mockups/screenshots';fs.mkdirSync(root,{recursive:true});
  for(const [width,height] of [[1440,900],[1024,768]]){
   await page.setViewportSize({width,height});
-  for(let i=0;i<9;i++){await nav(page,i);await page.screenshot({path:path.join(root,SCREENS[i]+'-'+width+'x'+height+'.png'),fullPage:true});}
+  for(let i=0;i<9;i++){await nav(page,i);await page.screenshot({path:path.join(root,SCREENS[i]+'-'+width+'x'+height+'.png'),fullPage:false});}
  }
  await page.setViewportSize({width:1440,height:900});await nav(page,2);
  await page.getByLabel('Chế độ hiển thị').selectOption('grid');await page.screenshot({path:path.join(root,'library-grid.png'),fullPage:true});
