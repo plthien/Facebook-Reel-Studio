@@ -11,6 +11,7 @@
 | POST /publish-batches/preview | P3 EXTEND | Explicit targets array | Full per-target validation, counts/fingerprint; **no jobs created** |
 | POST /publish-batches | P3 EXTEND | Same targets; Idempotency-Key | Atomic revalidation; 201/200 same intent, 409 conflict, 422 errors with zero jobs |
 | GET /publish-jobs/{id} | P1 BACKED | Job ID | Attempts; UNCERTAIN reconcile info, no blind replay |
+| GET /publish-batches/{id} | P3 BACKED | Batch UUID | Batch id, fingerprint, target count and per-target job IDs; ownership-scoped, no sensitive token |
 
 List envelope:
 ```json
@@ -26,7 +27,7 @@ Preview response:
 ```json
 {"request_fingerprint":"sha256:example-not-a-real-hash","total":1,"valid":1,"warnings":0,"invalid":0,"targets":[{"client_target_id":"target-00001","ok":true,"errors":[],"warnings":[]}]}
 ```
-The server must reject duplicate client IDs, out-of-range target_index, missing ownership, invalid/REQUIRES_TEST media, inactive/unauthorized Pages, invalid/too-soon schedule, >100 targets and unsupported payload fields; no silent truncation. Duplicate scheduled intent generates a warning or blocking validation policy for operator review, with explicit diagnostic. Explicit target count is independent of asset count × Page count. The single DB transaction and outbox guarantee no partial writes.
+The server must reject duplicate client IDs, out-of-range target_index, missing ownership, invalid/REQUIRES_TEST media, inactive/unauthorized Pages, invalid/too-soon schedule, >100 targets and unsupported payload fields; no silent truncation. Exact duplicate target intents in one atomic batch generate **blocking** `DUPLICATE_INTENT` with client_target_id (HTTP 422). Canonical tuple: (page_id, variant_id, scheduled_at UTC, trim(title_override||''), trim(caption_override||'')). Different scheduled occurrences / different variants on one Page are permitted. Backend independently enforces minimum lead and clock validation. UI mock default 10 minutes is configurable, not a Meta limit. Prior preview fingerprint is invalidated when target intent changes. Explicit target count is independent of asset count × Page count. The single DB transaction and outbox guarantee no partial writes.
 
 Error examples (proposed):
 ```json
