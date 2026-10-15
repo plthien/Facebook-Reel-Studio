@@ -4,7 +4,7 @@ const {test,expect}=require('@playwright/test');
 const URL='/mockups/facebook-reels-studio-v2.html';
 const go=async(page,n)=>page.locator('.sidebar .nav button').nth(n).click();
 const quick=async page=>{await go(page,3);await page.getByRole('button',{name:'Tiếp',exact:true}).click();};
-const order=async(page,kind)=>page.evaluate(kind=>listData(kind).rows.map(x=>({id:x.id,date:x.createdAt||x.postedAt||x.scheduledAt,createdAt:x.createdAt,filename:x.filename})),kind);
+const order=async(page,kind)=>page.evaluate(kind=>listData(kind).rows.map(x=>({id:x.id,date:kind==='activity'?x.scheduledAt:(x.createdAt||x.postedAt),createdAt:x.createdAt,filename:x.filename})),kind);
 test.beforeEach(async({page})=>{await page.goto(URL);await page.evaluate(()=>{state.nowOverride=Date.parse('2026-10-15T09:00:00Z');});});
 test('QP-01 all 45 ACTIVE Pages discoverable among complete 50',async({page})=>{
  await quick(page);
@@ -46,8 +46,8 @@ test('QP-07/08 bulk all 45 eligible with unauthorized disabled',async({page})=>{
  await page.getByLabel('Lọc trạng thái Page Quick').selectOption('unavailable');
  await expect(page.locator('.quick-page-row')).toHaveCount(5);
  await expect(page.locator('.quick-page-row input:disabled')).toHaveCount(5);
- await expect(page.getByLabel('Chọn Page p1')).toBeDisabled();
- await expect(page.getByLabel('Chọn Page p20')).toBeDisabled();
+ await expect(page.getByRole('checkbox',{name:'Chọn Page p1',exact:true})).toBeDisabled();
+ await expect(page.getByRole('checkbox',{name:'Chọn Page p20',exact:true})).toBeDisabled();
  await expect(page.getByText('Đã chọn 45 / 45 Pages ACTIVE')).toBeVisible();
 });
 test('QP-09/10 per target edits survive unrelated page selection, Quick identity immutable',async({page})=>{
@@ -92,7 +92,7 @@ test('SORT-06/07 Reel chronology global and metrics sorting disabled',async({pag
  await page.getByRole('button',{name:'Tiếp ›'}).click();const b=await order(page,'reels');
  expect(Date.parse(a[24].date)).toBeGreaterThan(Date.parse(b[0].date));
  await expect(page.getByLabel('Sắp xếp Reels')).toHaveValue('posted_at_desc');
- await expect(page.locator('select[aria-label="Sắp xếp Reels"] option[value="views_desc"]')).toBeDisabled();
+ await expect(page.locator('select[aria-label="Sắp xếp Reels"] option[value="views_desc"]')).toHaveAttribute('disabled','');
  expect(await page.evaluate(()=>state.sortBy.reels)).toBe('posted_at_desc');
 });
 test('SORT-08/09 Activity chronological schedule and creation ordering across pages',async({page})=>{
