@@ -6,8 +6,8 @@
 | GET /media | P1 EXTEND | `q,tag,validation_status,sort,limit,cursor` | Cursor envelope; name, ID, filename and indexed variant title search; sorts created_at_desc/asc,filename_asc; `REQUIRES_TEST` non-publishable |
 | GET /media/{id}/publications | P1/P2 EXTEND | `limit,cursor` | Verified variant/job/Reel lineage only; imported unlinked unless evidence |
 | GET /pages | P1 BACKED + optional EXTEND | `q,status,group_label,limit,cursor` | Group is local optional field, not Facebook Page category |
-| GET /reels | P2 EXTEND | `q,page_ids,origin,from,to,sort,metric_sort,limit,cursor` | Return Reel UUID, Meta string IDs, Page, origin, posted_at, metrics availability/collected_at; metric_sort only if P0-proven |
-| GET /publish-jobs | P1/P3 EXTEND | `q,page_id,status,from,to,sort,limit,cursor` | Stable job ID, status, Page, schedule; no token or upload secret |
+| GET /reels | P2 EXTEND | `q,page_ids,origin,from,to,sort,metric_sort,limit,cursor` | Return Reel UUID, Meta string IDs, Page, origin, posted_at, metrics availability/collected_at; sort=posted_at_desc for current v2; metric_sort DEFERRED until P0-proven |
+| GET /publish-jobs | P1/P3 EXTEND | `q,page_id,status,from,to,sort,limit,cursor` | Stable job ID, status, Page, schedule; sort=scheduled_at_desc/asc or created_at_desc; no token or upload secret |
 | POST /publish-batches/preview | P3 EXTEND | Explicit targets array | Full per-target validation, counts/fingerprint; **no jobs created** |
 | POST /publish-batches | P3 EXTEND | Same targets; Idempotency-Key | Atomic revalidation; 201/200 same intent, 409 conflict, 422 errors with zero jobs |
 | GET /publish-jobs/{id} | P1 BACKED | Job ID | Attempts; UNCERTAIN reconcile info, no blind replay |
@@ -39,3 +39,14 @@ Error examples (proposed):
 429 uses retryable rate-limit metadata but never blindly repeats external FINISH. Dynamic Page authorization must be rechecked before submit. GET media usage counts distinguish actual published Reels, Page count and job attempts. P2 snapshots include `metric_key`, `source`, `collected_at`, `availability`, and measured zero separately from N/A. Date-based view delta only from compatible snapshots; lifetime total is never window gain.
 
 **DEFER:** selection of all filtered matches, rescheduling PATCH, unproven metrics and inferred imported Reel associations.
+
+
+## G3 targeted clarification — UI sorting and complete Page selection (PROPOSED)
+
+- `GET /media` sort allowlist remains `created_at_desc`, `created_at_asc`, `filename_asc`, with **globally consistent ordering** before cursor pagination. Use a stable internal UUID tie-break for identical values. Fixture uses deterministically generated sortable filename/created_at; real backend must filter/sort before paging.
+- `GET /reels` current UI exposes **only `posted_at_desc`**. `metric_sort` is explicitly **disabled/deferred** until P0 provider capability, availability/freshness semantics, and P2 aggregation are verified. Do not ship `views_desc` as a usable sort.
+- `GET /publish-jobs` currently proposes `scheduled_at_desc`, `scheduled_at_asc`, `created_at_desc`. Stable UUID tie-break and filter/sort-bound opaque cursor are required. Date/time sorts use UTC on backend; UI shows GMT+7.
+- Quick Page Selector must fetch the **entire authorized Page inventory** (10–50 Pages) using existing `GET /pages` cursor until `has_more=false`, before presenting a local “Select ACTIVE Pages in current filter” action. No new bulk-selection endpoint or infinite-result selection token is introduced. P3 submission revalidates every Page's capability.
+- Browser hash/Back/Forward sync is **frontend-only**, no new API endpoint.
+
+All of the above are proposed designs, not implemented endpoints or P0 evidence.
