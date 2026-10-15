@@ -1,0 +1,33 @@
+name: UI v2 mockup browser regression
+on:
+  push:
+    branches:
+      - design/ui-mockup-v2
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install standalone browser test dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Execute PR3 regressions and screenshots
+        run: npm run test:ui
+      - name: Upload browser evidence, including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-v2-browser-evidence
+          path: |
+            mockups/screenshots/
+            playwright-report/
+            test-results/
+          if-no-files-found: warn
