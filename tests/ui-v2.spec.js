@@ -1,3 +1,5 @@
+const fs = require('node:fs');
+fs.mkdirSync('mockups/screenshots',{recursive:true});
 // Design acceptance suite — intended to run with Playwright, not run by the commit author.
 const {test,expect}=require('@playwright/test');
 const base='http://127.0.0.1:8765/mockups/facebook-reels-studio-v2.html';
