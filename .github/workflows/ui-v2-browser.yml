@@ -8,7 +8,7 @@ concurrency:
   group: ui-v2-${{ github.ref }}
   cancel-in-progress: true
 permissions:
-  contents: read
+  contents: write
 jobs:
   browser:
     runs-on: ubuntu-latest
@@ -24,6 +24,17 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Execute PR3 regressions and screenshots
         run: npm run test:ui
+      - name: Save reviewed screenshots and npm lockfile on PR branch
+        if: ${{ success() && github.ref_name == 'design/ui-mockup-v2' }}
+        continue-on-error: true
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package-lock.json mockups/screenshots/
+          if ! git diff --cached --quiet; then
+            git commit -m "test(ui-v2): attach executed Chromium screenshots and dependency lock"
+            git push origin HEAD:design/ui-mockup-v2
+          fi
       - name: Upload browser evidence, including failures
         if: always()
         uses: actions/upload-artifact@v4
