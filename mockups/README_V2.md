@@ -1,21 +1,10 @@
-# Facebook Reels Studio UI v2 — Large-Scale Operations
+# Facebook Reels Studio · UI v2 (PR #3)
+Open [interactive HTML](facebook-reels-studio-v2.html) locally as a standalone design demo.
 
-- **[Interactive standalone HTML](facebook-reels-studio-v2.html)** — open after downloading; no build or API server required.
-- **[UI ↔ Backend contract audit](UI_V2_BACKEND_CONTRACT_AUDIT.md)** — screen/API/phase mapping, unsupported behavior, required spec patches and release gates.
-- **[Canonical specification](../docs/FACEBOOK_REELS_STUDIO_TECHNICAL_SPEC_V1.md)**
-- **[P0–P3 implementation plan](../docs/IMPLEMENTATION_PLAN_P0_P3.md)**
+**Not implemented:** OAuth, Meta publishing, production API/DB, uploads, analytics synchronization. Synthetic design data only. 50 Pages / 10k assets / 100k Reels / 100k jobs are **scale labels and deterministic lazy fixture ranges**, not benchmark results or loaded record arrays.
 
-The UI v2 design is a **prototype only**: 50 Pages, 10,000 video assets, 100,000 Reels, 100,000 jobs are synthetic fixture objects, generated in the browser for illustration. This is not a performance test and not representative of production data loading.
+Nine screens: Dashboard, Fanpages, Video Library (default List; Grid toggle; search/filter; cursor-demo and explicit ID selection), Publish Composer (Quick or explicit-assignment Batch; sample **20 assets/10 Pages/60 targets**; max 100 targets, per-target title/caption/local-time/UTC, full paginated Review, demo validation without backend), Calendar (read-only Agenda/Week/Month), Published Reels (origin provenance, latest lifetime metrics), Analytics (N/A/STALE/zero separated), Activity/Queue (UNCERTAIN reconcile only), Settings.
 
-## Key changes from v1
-1. Asset grid/list, bounded paginated views, multi-select, usage-history contract warning.
-2. Reels-first paginated data management table, Page and origin filters, last-snapshot semantics.
-3. Composer split into Quick Publish and Batch Publish; per-target review matrix, immutable explicit target concept and API preflight.
-4. Agenda-first calendar, monthly/weekly density summaries; unsafe reschedule controls removed.
-5. Action-center dashboard and safe job details; UNCERTAIN reconciliation is not blind retry.
-6. Every action that is only a specification contract opens a clearly labeled mock drawer and performs no real write.
+Pages/asset IDs in this demo are simulated `p2`/`a2`; production uses owned Page UUID and content variant UUID. The UI displays Asia/Ho_Chi_Minh and converts to UTC. It never makes real writes. Production requires server-side cursor pagination (25/50/100), caching and request cancellation, lazy previews, indexed filter/sort, and backend analytics aggregates.
 
-## Hard boundaries
-P0 Meta API feasibility is NOT completed; no live OAuth, video publishing, Reels discovery or analytics is implemented. Do not merge mockup as proof of provider support. Do not add backend features without updating contracts first.
-
-This branch is for design review. Do not treat it as frontend implementation or P0 approval.
+See [backend audit](UI_V2_BACKEND_CONTRACT_AUDIT.md), [screen/contract matrix](../docs/ui/UI_V2_SCREEN_CONTRACT_MATRIX.md), [ADR](../docs/adr/ADR_UI_V2_API_EXTENSIONS.md), [API proposals](../docs/api/INTERNAL_API_CONTRACTS_V1_1.md), [test ledger](../docs/test/UI_V2_ACCEPTANCE_TESTS.md) and [freeze candidate](../docs/ui/UI_V2_FREEZE.md). Proposed contracts await review. No evidence of Playwright PASS or actual screenshots yet.
