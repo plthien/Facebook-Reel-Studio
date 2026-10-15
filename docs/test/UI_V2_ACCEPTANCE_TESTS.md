@@ -1,7 +1,7 @@
 # UI v2 — executed acceptance & regression ledger
-**Result: 19/19 Playwright PASS, 0 FAIL** on code/test commit `59bb8a667861d1442bc8ff023abbcaa335328b98` · [GitHub Actions #38720044131](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38720044131).
+**CURRENT: G3_READY_FOR_APPROVAL, USER APPROVAL PENDING.** [Actions #38727389515](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38727389515) on tested checkout `3adf11d259df40687177623810e1b6d1cb7cb62f`: **35/35 Playwright PASS, 0 FAIL** (19 baseline + 16 targeted), contract PASS, **37 PNG screenshots**; 9/9 screens.
 
-Actual CI commands: `npm install --no-audit --no-fund`, `npm run test:contract`, `npx playwright install --with-deps chromium`, `npm run test:ui`. Host: GitHub-hosted Ubuntu 24.04, Node 22, Playwright 1.55.0, Chromium 140.0.7339.16 (build 1187). Test duration 16.1 s. No actual Meta HTTP operations.
+Actual latest CI commands: `npm ci --no-audit --no-fund`, `npm run test:contract`, `npx playwright install --with-deps chromium`, `npm run test:ui`. Host: GitHub-hosted Ubuntu 24.04, Node 22, Playwright 1.55.0, Chromium 140.0.7339.16 (build 1187). Test duration 16.2 s. No actual Meta HTTP operations.
 
 | Test | Browser behavior asserted | Actual |
 |---|---|---|
@@ -22,12 +22,12 @@ Actual CI commands: `npm install --no-audit --no-fund`, `npm run test:contract`,
 | UI15 | Imported Reel without fake local asset link; metric N/A | PASS |
 | UI16 | Calendar Agenda/Week/Month; no drag-reschedule | PASS |
 | UI17 | 1440/1024 browser viewport no application-level horizontal overflow; drawer scroll | PASS |
-| UI18 | 23 screenshot images generated from Chromium at required views/workflows | PASS |
+| UI18 | Original 23 screenshot capture group (18 screen + 5 workflow), now 37 total with targeted suite | PASS |
 | UI19 | Quick video canonical across Pages; switching to Batch retains all asset IDs | PASS |
 | CONTRACT01 | Parse proposed OpenAPI 3.1 JSON-encoded YAML 1.2; 8 routes, 79 refs; schema/legacy checks | PASS |
 
-## Captured screenshots
-All **nine screens** at **1440×900 and 1024×768** (18 pixel-exact viewport PNGs), plus `library-grid.png`, `publish-review-60.png`, `publish-invalid.png`, `reel-detail.png`, `uncertain-detail.png` (5 full-page PNGs). Files are committed under `mockups/screenshots/`; [Action artifact/run evidence](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38720044131).
+## Verified current screenshots — 37 tracked PNGs
+All **nine screens** at **1440×900 and 1024×768** (18 pixel-exact viewport PNGs), plus `library-grid.png`, `publish-review-60.png`, `publish-invalid.png`, `reel-detail.png`, `uncertain-detail.png` (5 full-page PNGs). The original 23 plus 14 targeted captures form **37 tracked PNGs**, catalogued in the [Freeze Manifest](../ui/UI_V2_FREEZE.md). [Current run #38727389515](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38727389515) provides authoritative job logs and artifacts. The 23-image set is historical.
 
 ## Baseline failures and closure
 Before repair, F1 selected 105→100 silent transfer, F2 accepted 2020 date, F3 chips p2/p3 mismatched targets p4/p3, F4 duplicate marked warning and confirm allowed. Reproduced in executable JavaScript against baseline HEAD; all repaired and confirmed by V8 logic tests + browser regression.
@@ -36,7 +36,7 @@ Before repair, F1 selected 105→100 silent transfer, F2 accepted 2020 date, F3 
 
 
 ## Additional 16 targeted Playwright test groups — executed PASS
-Run [#38726566010](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38726566010), source HEAD `1de100918abe00fa0776c36e8e63305a113ac208` before screenshot auto-commit. **35/35 PASS, 0 FAIL** including all previous 19; `npm run test:contract` PASS. Executed via GitHub Actions: `npm install --no-audit --no-fund`, `npm run test:contract`, `npx playwright install --with-deps chromium`, `npm run test:ui`. No P0 live Meta tests.
+Current run [#38727389515](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38727389515) on tested source checkout `3adf11d259df40687177623810e1b6d1cb7cb62f`, UI implementation last change `1de100918abe00fa0776c36e8e63305a113ac208`. **35/35 PASS, 0 FAIL** including all previous 19; `npm run test:contract` PASS. Executed via GitHub Actions: `npm ci --no-audit --no-fund`, `npm run test:contract`, `npx playwright install --with-deps chromium`, `npm run test:ui`. No P0 live Meta tests.
 
 | Test IDs | Actual assertions | Result |
 |---|---|---|
@@ -58,3 +58,6 @@ Run [#38726566010](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/
 | PERF-01 | 25-row global sorted page uses at most 26 generated fixture records; avoids materializing 10k/100k dataset for default paging | PASS |
 
 Prior **19 tests remain PASS** (F1–F4, 60 target review, intent fingerprint, Meta mock-only controls, accessibility, 9 screens). New screenshots: quick-selector, quick-p50, quick-45-pages, library-filename-sort, reels-sort-gated, activity-schedule-sort, back-restored-library, each at 1440×900 and 1024×768. **37 screenshot files** total. Inspected actual browser renders for p50/45 selector, status separation, Activity sort and Reels capability gating. No production performance claim based on fixtures.
+
+## Historical / superseded CI evidence
+19/19 browser tests on code commit `59bb8a667861d1442bc8ff023abbcaa335328b98` with 23 screenshots: [Actions #38720044131](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38720044131). Later targeted run [#38726566010](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38726566010) confirmed 35/35; both are historical, and neither supersedes current [run #38727389515](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38727389515) on `3adf11d259df40687177623810e1b6d1cb7cb62f`.

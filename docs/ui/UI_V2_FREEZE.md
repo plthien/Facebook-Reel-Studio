@@ -1,35 +1,83 @@
-# Facebook Reels Studio — UI v2 G3 freeze candidate
-**Status: G3_READY_FOR_APPROVAL — USER APPROVAL PENDING. NOT G3_APPROVED.**
+# Facebook Reels Studio UI v2 — Authoritative Freeze Manifest
 
-- Repository: `plthien/Facebook-Reel-Studio`; existing PR [#3](https://github.com/plthien/Facebook-Reel-Studio/pull/3), branch `design/ui-mockup-v2`; main untouched, PR unmerged.
-- **Exact browser-tested code/test commit:** `59bb8a667861d1442bc8ff023abbcaa335328b98`. Screenshot/lockfile evidence originally committed in `e6e3df345508d982686e1108e07e7b2ebb51aa75`. Subsequent documentation-only freeze metadata is not itself a production build; use the live PR HEAD for final Git identity.
-- **Browser evidence:** [successful GitHub Actions run #38720044131](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38720044131); **19/19 Playwright PASS**, contract validator PASS (8 OpenAPI routes, 79 local schema references). GitHub-hosted Ubuntu 24.04, Node 22, Playwright 1.55.0, bundled Chromium 140.0.7339.16 (build 1187).
-- **Screenshots:** 23 real Chromium PNGs under [`mockups/screenshots/`](../../mockups/screenshots) on this PR branch: 9 screens at **1440×900**, 9 at **1024×768**, and Library Grid, Review 60, invalid-target Review, Reel drawer, UNCERTAIN drawer. The 18 standard screenshots have exact viewport pixel dimensions; the 5 critical-workflow images are full-page. [Run artifact](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38720044131) also contains evidence and HTML report.
+## Current status — authoritative G3 freeze candidate (2026-10-15)
 
-## G3 screen/workflow coverage
-Dashboard, Fanpages, Video Library, Quick/Batch Publish, Calendar, Published Reels, Analytics, Activity/Queue, Settings (9/9). Grid/List, bounded simulated cursor, explicit selections, 50/100/105 selection, 100 targets limit, 20-video/10-Page/60-target explicit fixture, all-target review in pages 25+25+10, stable caption/title/time, local (+07:00) → UTC, past/invalid/too-soon checks, canonical Quick video/Page identities, duplicate blocking, changed-intent invalidation, 409/422/401/403/429/503 demo states, UNCERTAIN reconciliation-only, unsupported feature disabled, imported Reel without inferred asset linkage, inaccessible metrics ≠ zero.
+| Field | Verified result |
+|---|---|
+| Freeze candidate | **Facebook Reels Studio UI v2** |
+| Gate status | **G3_READY_FOR_APPROVAL** |
+| Approval status | **USER APPROVAL PENDING — NOT G3_APPROVED** |
+| Repository | `plthien/Facebook-Reel-Studio` |
+| Pull request | [PR #3](https://github.com/plthien/Facebook-Reel-Studio/pull/3) — OPEN, not merged |
+| Branch / proposed base | `design/ui-mockup-v2` → `main` |
+| UI implementation SHA (last HTML modification) | `1de100918abe00fa0776c36e8e63305a113ac208` |
+| Targeted test-suite last-modification SHA | `7f99f2e5b21fc46f0f69d2f74ce169ea951b0635` |
+| **CI-tested repository snapshot SHA** | **`3adf11d259df40687177623810e1b6d1cb7cb62f`** |
+| Verified CI | [GitHub Actions run #38727389515](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38727389515) — **SUCCESS**, checked out `3adf11d259df40687177623810e1b6d1cb7cb62f` |
+| Playwright | **35/35 PASS, 0 FAIL**, previous 19 tests + 16 targeted groups |
+| Contract validation | **PASS**, 8 OpenAPI 3.1 routes / 79 schema references, legacy/schema checks |
+| Screenshots | **37 non-empty tracked Chromium PNGs**: 18 baseline screen + 5 original workflow + 14 targeted |
+| Covered screens | **9/9** — Dashboard, Fanpages, Video Library, Publish, Calendar, Reels, Analytics, Activity, Settings |
+| Meta P0 | **NOT_RUN / BLOCKED_EXTERNAL** |
+| Production backend | **NOT_IMPLEMENTED** (no real FastAPI/PostgreSQL/worker/Meta publishing integration) |
 
-## Governing proposed contracts
-`docs/adr/ADR_UI_V2_API_EXTENSIONS.md`, `docs/api/INTERNAL_API_CONTRACTS_V1_1.md`, `docs/api/openapi-v1.1.yaml` (OpenAPI 3.1, JSON-encoded YAML 1.2), `docs/database/SCHEMA_AMENDMENTS_V1_1.md`, technical spec and P0–P3 plan. Database target identity: `target_index`, `client_target_id`, the two per-batch unique keys; old `UNIQUE(batch_id,page_id)` eliminated in proposed DDL. Every target is independently validated and submitted atomically with an idempotency fingerprint; **no actual backend or migration implemented**.
+**Source and SHA interpretation:** `1de100918abe00fa0776c36e8e63305a113ac208` last changed the HTML UI. `7f99f2e5b21fc46f0f69d2f74ce169ea951b0635` last changed the targeted Playwright suite. **`3adf11d259df40687177623810e1b6d1cb7cb62f` is the complete source checkout actually tested** by the latest successful CI run, including both Playwright suites, contract validator and CI workflow. A subsequent documentation-only commit has a *different* final PR HEAD. To avoid embedding a commit's own SHA in that commit, consult the [live PR #3](https://github.com/plthien/Facebook-Reel-Studio/pull/3) and its updated description for the final documentation HEAD and its own CI run; do not claim that earlier CI tested future documentation edits.
 
-## Actual gates and limitations
-- **PASS:** baseline F1–F4 reproduced, repaired; V8 functional regression after changes; Playwright 19/19; viewport-size screenshots visually inspected; no app-level horizontal overflow found at tested viewports; browser runtime errors test passed; offline OpenAPI JSON/YAML 1.2 syntax/internal-ref/schema consistency check passed.
-- **NOT_RUN:** live Meta API operations, PostgreSQL/Alembic migrations, worker/queue testing, production React implementation, true backend query/capacity benchmarks and real P0 metric support.
-- **BLOCKED_EXTERNAL (separate P0 gate):** real owned-Page Meta authorization/publish/insights evidence.
-- **DEFER:** selection across all filtered results, reschedule PATCH/drag, unsupported metrics, inferred imported media association, cross-Page reporting not grounded in proven metric data.
-- **Awaiting approval:** all proposed API/schema decisions and this G3 implementation reference. **Do not merge PR #3 automatically.**
+### Actual test evidence
 
-The large dataset numbers are **synthetic fixture scope**, not benchmark performance; production must use server-side cursor pagination, indexed filtering and sorting, request cancel/cache, and backend analytics aggregates. Full-page Playwright screenshots may place CSS sticky sidebar at a stitched scroll position; compare exact viewport captures for visual alignment.
+[Run #38727389515](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38727389515) on GitHub-hosted Ubuntu 24.04 used Node 22, Playwright 1.55.0 and Chromium 140.0.7339.16. Job logs confirm `npm ci --no-audit --no-fund`, `npm run test:contract`, `npx playwright install --with-deps chromium` and `npm run test:ui`, **35 passed in 16.2 seconds** and contract **PASS**. Test report and screenshot artifacts were uploaded. This is fixture/browser evidence only, **not** real Meta P0 proof.
 
+### Screen and workflow acceptance
 
-## G3 final targeted repair addendum — candidate for user approval
-**Result: G3_READY_FOR_APPROVAL (NOT G3_APPROVED).** Same PR #3 / branch `design/ui-mockup-v2`. Last code and screenshot-tested UI change: `1de100918abe00fa0776c36e8e63305a113ac208`; screenshot evidence commit `0da3acd102e3462a4b30bfc5256901ef0a01ea5e`. Subsequent commits only update proposed contracts/test reports; GitHub PR HEAD is authoritative for the final SHA.
+- **Quick Publisher:** full 50 Page fixture, 45 ACTIVE, 5 unavailable/unauthorized; searchable `p50` through browser UI, multi-select, filters and no loss of hidden selected Pages or caption/title/schedule; immutable Page and Video identity in Review.
+- **Global sorting:** Library `created_at_desc/asc`, `filename_asc`; Reels `posted_at_desc` only, views sort visibly disabled until P0/P2 verification; Activity `scheduled_at_desc/asc`, `created_at_desc`. Fixture global sort precedes cursor paging without allocating 100k records for normal pages.
+- **Hash navigation:** direct routes, Back/Forward, accurate sidebar/header, invalid hash fallback, no duplicate same-route history, drawer dismissal and unsent publisher draft retention.
+- **Preserved F1–F4:** 50/100 selected assets transfer intact; 105 selection blocks with no silent truncation; strict scheduled dates/UTC/lead; Quick canonical intent; duplicate and stale preview blocking; 20 videos/10 Pages → 60 explicit targets, Review pagination 25+25+10. No actual jobs are created.
+- 50 Pages, 10k assets, 100k Reels and 100k jobs are **synthetic design scale, not real backend performance evidence**.
 
-Issues closed:
-1. Quick Page Selector renders all 50, identifies 45 ACTIVE + 5 unavailable, supports name/internal Page ID/Meta ID search, optional local group/status filters, scoped select-all/clear, 45 simultaneous Page targets, and p50 UI selection. Filtering does not alter selected Pages or target-specific drafts. All non-ACTIVE Pages disabled.
-2. Library allowlist `created_at_desc`, `created_at_asc`, `filename_asc`; Reels only `posted_at_desc` with `views_desc` disabled pending P0/P2; Jobs `scheduled_at_desc`, `scheduled_at_asc`, `created_at_desc`. All sorting uses global deterministic fixture ordering before cursor and preserves stable selection/filter state. Production still requires indexed server-side sort+cursor.
-3. Hash navigation supports direct routes, Back/Forward, no extra identical-route entries, invalid hash → dashboard, closed drawers on route change, and preservation of unsent publishing drafts.
+## Screenshot manifest — 37 verified PNG files
 
-**Execution:** [GitHub Actions #38726566010](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38726566010) on code change `1de1009`: **35/35 real Chromium Playwright PASS**, offline OpenAPI/schema validator PASS (8 routes/79 schema references). Baseline **19/19** retained; **16 new** targeted test groups including bounded-data check. Host GitHub Ubuntu 24.04, Node 22, Playwright 1.55.0, Chromium 140.0.7339.16. Captured **37 screenshots total** under `mockups/screenshots/`: previous 23 plus 14 new targeted captures (7 scenarios × 1440×900 / 1024×768). New captures and previous viewport shots refreshed by CI, screenshots reviewed for layout overflow and Page details.
+File inventory checked against GitHub's **CI-tested commit tree** `3adf11d259df40687177623810e1b6d1cb7cb62f`. All expected paths are present, unique and non-empty. Baseline and targeted two-viewport PNGs use **1440×900** and **1024×768**; five original workflow captures are full-page.
 
-**Not verified:** P0 Meta authorization/publish/metric capability, production P1–P3 backend, DB migration, real 100k-record backend performance. All APIs/schema are proposed, pending approval. Existing deferred operations remain deferred. The browser demo never publishes.
+| Baseline screen (9 × 2 = 18) | Actual 1440×900 / 1024×768 files |
+|---|---|
+| dashboard | [`dashboard-1440x900.png`](../../mockups/screenshots/dashboard-1440x900.png) · [`dashboard-1024x768.png`](../../mockups/screenshots/dashboard-1024x768.png) |
+| pages | [`pages-1440x900.png`](../../mockups/screenshots/pages-1440x900.png) · [`pages-1024x768.png`](../../mockups/screenshots/pages-1024x768.png) |
+| library | [`library-1440x900.png`](../../mockups/screenshots/library-1440x900.png) · [`library-1024x768.png`](../../mockups/screenshots/library-1024x768.png) |
+| publish | [`publish-1440x900.png`](../../mockups/screenshots/publish-1440x900.png) · [`publish-1024x768.png`](../../mockups/screenshots/publish-1024x768.png) |
+| calendar | [`calendar-1440x900.png`](../../mockups/screenshots/calendar-1440x900.png) · [`calendar-1024x768.png`](../../mockups/screenshots/calendar-1024x768.png) |
+| reels | [`reels-1440x900.png`](../../mockups/screenshots/reels-1440x900.png) · [`reels-1024x768.png`](../../mockups/screenshots/reels-1024x768.png) |
+| analytics | [`analytics-1440x900.png`](../../mockups/screenshots/analytics-1440x900.png) · [`analytics-1024x768.png`](../../mockups/screenshots/analytics-1024x768.png) |
+| activity | [`activity-1440x900.png`](../../mockups/screenshots/activity-1440x900.png) · [`activity-1024x768.png`](../../mockups/screenshots/activity-1024x768.png) |
+| settings | [`settings-1440x900.png`](../../mockups/screenshots/settings-1440x900.png) · [`settings-1024x768.png`](../../mockups/screenshots/settings-1024x768.png) |
+
+| Original workflow captures (5) | File |
+|---|---|
+| library-grid | [`library-grid.png`](../../mockups/screenshots/library-grid.png) |
+| publish-review-60 | [`publish-review-60.png`](../../mockups/screenshots/publish-review-60.png) |
+| publish-invalid | [`publish-invalid.png`](../../mockups/screenshots/publish-invalid.png) |
+| reel-detail | [`reel-detail.png`](../../mockups/screenshots/reel-detail.png) |
+| uncertain-detail | [`uncertain-detail.png`](../../mockups/screenshots/uncertain-detail.png) |
+
+| Targeted Page Selector / sorting / browser navigation (7 × 2 = 14) | Actual 1440×900 / 1024×768 files |
+|---|---|
+| quick-selector | [`quick-selector-1440x900.png`](../../mockups/screenshots/quick-selector-1440x900.png) · [`quick-selector-1024x768.png`](../../mockups/screenshots/quick-selector-1024x768.png) |
+| quick-p50 | [`quick-p50-1440x900.png`](../../mockups/screenshots/quick-p50-1440x900.png) · [`quick-p50-1024x768.png`](../../mockups/screenshots/quick-p50-1024x768.png) |
+| quick-45-pages | [`quick-45-pages-1440x900.png`](../../mockups/screenshots/quick-45-pages-1440x900.png) · [`quick-45-pages-1024x768.png`](../../mockups/screenshots/quick-45-pages-1024x768.png) |
+| library-filename-sort | [`library-filename-sort-1440x900.png`](../../mockups/screenshots/library-filename-sort-1440x900.png) · [`library-filename-sort-1024x768.png`](../../mockups/screenshots/library-filename-sort-1024x768.png) |
+| reels-sort-gated | [`reels-sort-gated-1440x900.png`](../../mockups/screenshots/reels-sort-gated-1440x900.png) · [`reels-sort-gated-1024x768.png`](../../mockups/screenshots/reels-sort-gated-1024x768.png) |
+| activity-schedule-sort | [`activity-schedule-sort-1440x900.png`](../../mockups/screenshots/activity-schedule-sort-1440x900.png) · [`activity-schedule-sort-1024x768.png`](../../mockups/screenshots/activity-schedule-sort-1024x768.png) |
+| back-restored-library | [`back-restored-library-1440x900.png`](../../mockups/screenshots/back-restored-library-1440x900.png) · [`back-restored-library-1024x768.png`](../../mockups/screenshots/back-restored-library-1024x768.png) |
+
+**Total: 18 + 5 + 14 = 37 distinct tracked PNGs**. [Browse screenshot directory](../../mockups/screenshots/). Existing captures verified; no regeneration was required for this documentation-only task.
+
+## Proposed contracts, restrictions and approval gate
+
+Proposed, **NOT IMPLEMENTED**: [control-level matrix](UI_V2_SCREEN_CONTRACT_MATRIX.md), [API v1.1](../api/INTERNAL_API_CONTRACTS_V1_1.md), [OpenAPI definition](../api/openapi-v1.1.yaml), [database schema amendments](../database/SCHEMA_AMENDMENTS_V1_1.md) and [ADR](../adr/ADR_UI_V2_API_EXTENSIONS.md). The per-target uniqueness scheme is a **design**, not an applied database migration. Meta P0 owned Page OAuth/publish/insights remains **NOT_RUN / BLOCKED_EXTERNAL**; real API/worker/backend/scale testing **NOT_IMPLEMENTED / NOT_RUN**. Cross-query select-all, calendar drag/reschedule, unverified view metrics and inferred imported media lineage remain deferred. User approval remains pending: **G3_READY_FOR_APPROVAL is not G3_APPROVED**, and PR #3 is not merged.
+
+## Historical baseline / superseded evidence — not current
+
+- Initial `59bb8a667861d1442bc8ff023abbcaa335328b98` with [Actions #38720044131](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38720044131) had **19/19** Playwright PASS and **23** original screenshots; original screenshot commit `e6e3df345508d982686e1108e07e7b2ebb51aa75`. **Historical only**, superseded by 35/37.
+- Later HTML-change SHA `1de100918abe00fa0776c36e8e63305a113ac208` and [Actions #38726566010](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38726566010) had **35/35** PASS with expanded screenshots, followed by screenshot evidence commit `0da3acd102e3462a4b30bfc5256901ef0a01ea5e`. Also historical for CI attribution; the authoritative CI run is **#38727389515 on `3adf11d259df40687177623810e1b6d1cb7cb62f`**.
+- F1–F4 originally failed on `456b377b8dcc3b0696ff544fe17278e9d3165a86` before repair. The current full suite covers their regression.
+

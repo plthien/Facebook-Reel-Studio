@@ -41,7 +41,7 @@
 | Settings 401/403/409/422/429/503, loading/empty | Design only | Demonstration of future failure handling | No network requests | UI13 | DEMO |
 | Drawer close/Escape, tablet nav labels | UI | No backend operation | Focus management and responsive table scroll | UI14, UI17 | DEMO |
 
-**Reviewed evidence:** [19/19 Chromium tests, run #38720044131](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38720044131), [test ledger](../test/UI_V2_ACCEPTANCE_TESTS.md), [OpenAPI proposed reference](../api/openapi-v1.1.yaml), [schema DDL proposal](../database/SCHEMA_AMENDMENTS_V1_1.md). Production mapping of `aN` to immutable content variant UUID and `pN` to internal Page UUID is mandatory; demo IDs never belong in real API POST. The 50/10k/100k fixture counts are design targets only.
+**CURRENT VERIFIED EVIDENCE:** [35/35 Chromium and contract PASS, run #38727389515](https://github.com/plthien/Facebook-Reel-Studio/actions/runs/38727389515) on `3adf11d259df40687177623810e1b6d1cb7cb62f`, **37 screenshot PNGs** ([Freeze Manifest](UI_V2_FREEZE.md)), [test ledger](../test/UI_V2_ACCEPTANCE_TESTS.md), [OpenAPI proposed reference](../api/openapi-v1.1.yaml), [schema DDL proposal](../database/SCHEMA_AMENDMENTS_V1_1.md). Production mapping of `aN` to immutable content variant UUID and `pN` to internal Page UUID is mandatory; demo IDs never belong in real API POST. The 50/10k/100k fixture counts are design targets only.
 
 
 ## G3 targeted repair traceability (2026-10-15)
@@ -55,3 +55,5 @@
 | Sidebar route clicks, direct hash, Back/Forward, drawer close | Frontend only | Hash router; **no new API** | Draft assets, mode, explicit targets and overrides preserved; invalid hash safely replaced with dashboard | NAV-01–09 | BACKED/DEMO |
 
 Updated contract sort allowlists are proposals only. Screen history is frontend-only. Query-wide Library result selection and unsanctioned Meta metrics remain DEFERRED.
+
+**G3_READY_FOR_APPROVAL — USER APPROVAL PENDING.** All referenced APIs, schema and database amendments are PROPOSED / NOT IMPLEMENTED; Meta P0 NOT_RUN / BLOCKED_EXTERNAL, production backend NOT_IMPLEMENTED. Historical 19/23 baseline is recorded in [Freeze Manifest](UI_V2_FREEZE.md).
