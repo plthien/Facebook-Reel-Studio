@@ -1,0 +1,34 @@
+'use strict';
+const fs=require('node:fs');
+const assert=require('node:assert/strict');
+const read=p=>fs.readFileSync(p,'utf8');
+const raw=read('docs/api/openapi-v1.1.yaml');
+// JSON documents are valid YAML 1.2. This proposed .yaml is written as JSON for deterministic offline checking.
+const spec=JSON.parse(raw);
+assert.equal(spec.openapi,'3.1.0');
+const required=['/media','/media/{id}/publications','/pages','/reels','/publish-jobs','/publish-batches/preview','/publish-batches','/publish-batches/{id}'];
+for(const route of required)assert.ok(spec.paths[route],route+' missing');
+assert.equal(Object.keys(spec.paths).length,required.length);
+let refs=0;function walk(o){if(o&&typeof o==='object'){if(o.$ref){refs++;assert.ok(o.$ref.startsWith('#/components/schemas/'),o.$ref);const key=o.$ref.split('/').pop();assert.ok(spec.components.schemas[key],'Missing '+o.$ref);}for(const v of Object.values(o))walk(v);}}
+walk(spec);
+assert.ok(refs>30,'Shallow OpenAPI definitions');
+const batch=spec.components.schemas.BatchRequest;
+assert.equal(batch.properties.targets.minItems,1);
+assert.equal(batch.properties.targets.maxItems,100);
+const target=spec.components.schemas.Target;
+for(const field of ['client_target_id','target_index','variant_id','page_id','scheduled_at'])assert.ok(target.required.includes(field),field+' required');
+assert.ok(spec.paths['/publish-batches'].post.responses['409']);
+assert.ok(spec.paths['/publish-batches'].post.responses['422']);
+assert.ok(spec.paths['/publish-batches/preview'].post.responses['200']);
+const technical=read('docs/FACEBOOK_REELS_STUDIO_TECHNICAL_SPEC_V1.md');
+assert.ok(!/UNIQUE\s*\(\s*batch_id\s*,\s*page_id\s*\)/i.test(technical),'Old DB unique constraint');
+assert.ok(!/create one job per Page|Tạo 1 job\/Page/i.test(technical),'Old one job/Page requirement');
+assert.ok(technical.includes('UNIQUE(batch_id, target_index)'));
+assert.ok(technical.includes('UNIQUE(batch_id, client_target_id)'));
+assert.ok(technical.includes("'REQUIRES_TEST'"));
+const adr=read('docs/adr/ADR_UI_V2_API_EXTENSIONS.md');
+assert.ok(adr.includes('DUPLICATE_INTENT'));
+const database=read('docs/database/SCHEMA_AMENDMENTS_V1_1.md');
+assert.ok(database.includes('uq_publish_jobs_batch_client_target'));
+assert.ok(database.includes('rollback')||database.includes('Rollback')||database.includes('downgrade'));
+console.log('CONTRACT PASS: OpenAPI 3.1 JSON/YAML parsed, 8 routes, '+refs+' schema refs resolved; duplicate, target, DDL and legacy spec checks passed.');
