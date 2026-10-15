@@ -76,7 +76,7 @@ Owner đăng nhập nội bộ → Connect Facebook → grant scope → OAuth ca
 Upload MP4 → probe metadata → tạo caption/variant → chọn một Page → confirm → job `queued` → Meta start → upload → status → finish → verify → `published`; có audit/permalink. Không coi finish HTTP 200 là published nếu chưa xác minh.
 
 **J3 – Schedule multi-page**  
-Chọn asset/variant → tick 10–50 Page → thiết lập caption/time theo Page → preview matrix → confirm batch → create one job per Page → scheduler dispatch job đúng thời điểm; từng Page lỗi không làm các Page khác rollback.
+Chọn asset/variant → tick 10–50 Page → thiết lập caption/time theo Page → preview matrix → confirm batch → tạo một job cho mỗi explicit approved target (một Page có thể xuất hiện nhiều lần với video/lịch khác nhau) → scheduler dispatch từng job; lỗi sau khi đã tạo batch được cách ly theo job/Page.
 
 **J4 – Analytics**  
 Dashboard lọc theo Page, khoảng ngày đăng, chủ đề, trạng thái → sync data → hiển thị per-Reel views, totals, freshness, metadata provenance → export CSV. **Không cộng các snapshot lifetime theo ngày.**
@@ -96,7 +96,7 @@ Mạng lỗi khi upload/finish → job `uncertain` hoặc retry an toàn tùy ph
 | FR-006 | Publish 1 Page từ UI | P1 | State machine bền qua restart |
 | FR-007 | Reels discovery/backfill | P2 | Đồng bộ Reels có sẵn trong API coverage |
 | FR-008 | Metric snapshots + dashboard | P2 | Metrics định nghĩa rõ, null vs 0, provenance |
-| FR-009 | Multi-page batch scheduling | P3 | Tạo 1 job/Page và 1 kết quả/Page |
+| FR-009 | Multi-page batch scheduling | P3 | Tạo 1 job cho mỗi explicit target và 1 kết quả cho mỗi target; cho phép nhiều target/Page |
 | FR-010 | Retry, cancel, reconcile | P1/P3 | Không double-publish trong các tình huống đã mô phỏng |
 | FR-011 | Filters/rankings/export | P2/P3 | Timezone, pagination, CSV bảo toàn số liệu |
 | FR-012 | Health and audit | P1→P3 | Trace lỗi mà không tiết lộ credential |
