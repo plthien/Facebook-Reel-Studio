@@ -5,7 +5,8 @@
   "description": "Standalone HTML mockup browser acceptance only. No runtime backend.",
   "scripts": {
     "test:ui": "playwright test",
-    "test:ui:report": "playwright test --reporter=line"
+    "test:ui:report": "playwright test --reporter=line",
+    "test:contract": "node tests/validate-contracts.js"
   },
   "devDependencies": {
     "@playwright/test": "1.55.0"
