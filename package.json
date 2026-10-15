@@ -1,0 +1,13 @@
+{
+  "name": "facebook-reels-studio-ui-v2-design-tests",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Standalone HTML mockup browser acceptance only. No runtime backend.",
+  "scripts": {
+    "test:ui": "playwright test",
+    "test:ui:report": "playwright test --reporter=line"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.0"
+  }
+}
