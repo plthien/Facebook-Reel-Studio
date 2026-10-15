@@ -161,5 +161,6 @@ test('18 screenshot evidence: 9 views each at 2 resolutions + critical workflows
  await sample60(page);await page.screenshot({path:path.join(root,'publish-review-60.png'),fullPage:true});
  await page.evaluate(()=>{state.targets[59].localTime='2020-01-01T09:00';draw();});await page.screenshot({path:path.join(root,'publish-invalid.png'),fullPage:true});
  await nav(page,5);await page.getByRole('button',{name:'Snapshot'}).first().click();await page.screenshot({path:path.join(root,'reel-detail.png'),fullPage:true});
+ await page.keyboard.press('Escape');
  await nav(page,7);await page.getByRole('button',{name:'Chi tiết'}).nth(4).click();await page.screenshot({path:path.join(root,'uncertain-detail.png'),fullPage:true});
 });
