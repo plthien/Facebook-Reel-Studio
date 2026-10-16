@@ -143,7 +143,7 @@ class MetaAdapter:
                                        params={"metric": metric, **({"period": "day"} if object_type == "PAGE" else {})})
         except MetaFailure as ex:
             category = (Availability.PERMISSION_DENIED if ex.category in {"BLOCKED_AUTH", "PERMISSION_DENIED"}
-                        else Availability.UNSUPPORTED if ex.category == "FAILED_VALIDATION"
+                        else Availability.UNVERIFIED if ex.category == "FAILED_VALIDATION"
                         else Availability.TEMPORARILY_UNAVAILABLE)
             return MetricResult(metric, object_type, object_id, category, graph_version=self.client.version, error_code=ex.code)
         rows = result.get("data")
