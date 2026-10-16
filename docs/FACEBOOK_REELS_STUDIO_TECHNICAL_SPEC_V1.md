@@ -76,7 +76,7 @@ Owner đăng nhập nội bộ → Connect Facebook → grant scope → OAuth ca
 Upload MP4 → probe metadata → tạo caption/variant → chọn một Page → confirm → job `queued` → Meta start → upload → status → finish → verify → `published`; có audit/permalink. Không coi finish HTTP 200 là published nếu chưa xác minh.
 
 **J3 – Schedule multi-page**  
-Chọn asset/variant → tick 10–50 Page → thiết lập caption/time theo Page → preview matrix → confirm batch → create one job per Page → scheduler dispatch job đúng thời điểm; từng Page lỗi không làm các Page khác rollback.
+Chọn asset/variant → tick 10–50 Page → thiết lập caption/time theo Page → preview matrix → confirm batch → tạo một job cho mỗi explicit approved target (một Page có thể xuất hiện nhiều lần với video/lịch khác nhau) → scheduler dispatch từng job; lỗi sau khi đã tạo batch được cách ly theo job/Page.
 
 **J4 – Analytics**  
 Dashboard lọc theo Page, khoảng ngày đăng, chủ đề, trạng thái → sync data → hiển thị per-Reel views, totals, freshness, metadata provenance → export CSV. **Không cộng các snapshot lifetime theo ngày.**
@@ -96,7 +96,7 @@ Mạng lỗi khi upload/finish → job `uncertain` hoặc retry an toàn tùy ph
 | FR-006 | Publish 1 Page từ UI | P1 | State machine bền qua restart |
 | FR-007 | Reels discovery/backfill | P2 | Đồng bộ Reels có sẵn trong API coverage |
 | FR-008 | Metric snapshots + dashboard | P2 | Metrics định nghĩa rõ, null vs 0, provenance |
-| FR-009 | Multi-page batch scheduling | P3 | Tạo 1 job/Page và 1 kết quả/Page |
+| FR-009 | Multi-page batch scheduling | P3 | Tạo 1 job cho mỗi explicit target và 1 kết quả cho mỗi target; cho phép nhiều target/Page |
 | FR-010 | Retry, cancel, reconcile | P1/P3 | Không double-publish trong các tình huống đã mô phỏng |
 | FR-011 | Filters/rankings/export | P2/P3 | Timezone, pagination, CSV bảo toàn số liệu |
 | FR-012 | Health and audit | P1→P3 | Trace lỗi mà không tiết lộ credential |
@@ -319,7 +319,7 @@ CREATE TABLE media_assets (
   video_codec text,
   audio_codec text,
   validation_status text NOT NULL DEFAULT 'PENDING'
-    CHECK (validation_status IN ('PENDING','VALID','INVALID','ERROR')),
+    CHECK (validation_status IN ('PENDING','VALID','INVALID','ERROR','REQUIRES_TEST')),
   validation_report jsonb NOT NULL DEFAULT '{}',
   created_at timestamptz NOT NULL DEFAULT now()
 );
@@ -367,7 +367,10 @@ CREATE TABLE publish_jobs (
   published_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE(batch_id, page_id),
+  target_index integer NOT NULL CHECK (target_index >= 0),
+  client_target_id text NOT NULL,
+  UNIQUE(batch_id, target_index),
+  UNIQUE(batch_id, client_target_id),
   UNIQUE(meta_video_id)
 );
 CREATE INDEX idx_publish_jobs_due ON publish_jobs (scheduled_at, id)
@@ -759,7 +762,7 @@ These are operational starting defaults only; actual API update cadence, rate li
 ### UI-05 Calendar (`/calendar`) — P3
 
 - Week/month view, filter by Page/status, local times, actions for scheduled jobs only.
-- Click card opens job detail; drag reschedule only if job hasn't started and version matches.
+- Click card opens job detail; read-only calendar; drag reschedule DEFERRED until approved PATCH API.
 - Calendar marks missed/delayed publishing separately from remote published timestamp.
 
 ### UI-06 Queue & Job Detail (`/activity` + `/jobs/:id`) — P1/P3
@@ -902,7 +905,7 @@ ANALYTICS_POLL_ENABLED=false
 | P3-03 | Per-target DB uniqueness and Idempotency-Key hash enforcement | Duplicate-safe requests |
 | P3-04 | Distributed scheduler and rate-limit aware concurrency | 10–50 Page dispatch |
 | P3-05 | Independent target retries and reconciliation workflow | Per-Page outcome / no collateral failures |
-| P3-06 | Week/month calendar, edit/cancel with optimistic lock | Usable operations calendar |
+| P3-06 | Read-only Agenda/Week/Month calendar; reschedule DEFERRED | Usable operations calendar |
 | P3-07 | Queue dashboard, audit, alerting and manual interventions | Production observability |
 | P3-08 | 50-Page simulation, soak, crash/restart, backup/restore | Release confidence |
 | P3-09 | One controlled live multi-Page launch + complete verification | Go-live evidence |
@@ -1038,3 +1041,7 @@ One-command local stack start; deterministic migrations; health checks; readines
 - Third-party field deprecation notes (corroborating): https://docs.supermetrics.com/docs/facebook-insights-field-changes-june-30-2026
 
 **Caveat:** Meta official developers.facebook.com pages may intermittently rate-limit automated fetches (429), and Postman examples can lag active Graph version. These URLs are research references, not production evidence. All marked LIVE-GATE contracts remain unverified until executing P0 with user-owned approved Meta credentials and Pages. No developer should mark them 'done' from mocked tests alone.
+
+## UI v2 design amendments — PROPOSED / AWAITING APPROVAL
+
+The PR #3 reference requires explicit max-100 `targets[]` with stable `target_index`, `client_target_id`, `variant_id`, `page_id`, caption/title override, UTC schedule and independent target identities. One Page may receive multiple videos per batch. Every preview validates every target; submission revalidates atomically, preserves idempotency and fails with 422 (invalid) or 409 (changed idempotency intent). The schema changes are proposals, NOT applied migrations. Use the ADR, `docs/api/INTERNAL_API_CONTRACTS_V1_1.md`, UI traceability matrix and acceptance gates. Calendar rescheduling is deferred. P0 live Meta verification is NOT_RUN; no production P1–P3 implementation is authorized by this design amendment.

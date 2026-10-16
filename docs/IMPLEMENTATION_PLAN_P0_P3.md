@@ -71,7 +71,7 @@
 | P3-03 | Per-target DB uniqueness and Idempotency-Key hash enforcement | Duplicate-safe requests |
 | P3-04 | Distributed scheduler and rate-limit aware concurrency | 10–50 Page dispatch |
 | P3-05 | Independent target retries and reconciliation workflow | Per-Page outcome / no collateral failures |
-| P3-06 | Week/month calendar, edit/cancel with optimistic lock | Usable operations calendar |
+| P3-06 | Read-only Agenda/Week/Month calendar; reschedule DEFERRED | Usable operations calendar |
 | P3-07 | Queue dashboard, audit, alerting and manual interventions | Production observability |
 | P3-08 | 50-Page simulation, soak, crash/restart, backup/restore | Release confidence |
 | P3-09 | One controlled live multi-Page launch + complete verification | Go-live evidence |
@@ -175,3 +175,15 @@ One-command local stack start; deterministic migrations; health checks; readines
 ## Source references
 
 See [technical specification section 15](FACEBOOK_REELS_STUDIO_TECHNICAL_SPEC_V1.md#15-verified-sources-and-scope-notes).
+
+
+## UI v2 design amendments — PROPOSED / AWAITING APPROVAL
+
+The PR #3 reference requires explicit max-100 `targets[]` with stable `target_index`, `client_target_id`, `variant_id`, `page_id`, caption/title override, UTC schedule and independent target identities. One Page may receive multiple videos per batch. Every preview validates every target; submission revalidates atomically, preserves idempotency and fails with 422 (invalid) or 409 (changed idempotency intent). The schema changes are proposals, NOT applied migrations. Use the ADR, `docs/api/INTERNAL_API_CONTRACTS_V1_1.md`, UI traceability matrix and acceptance gates. Calendar rescheduling is deferred. P0 live Meta verification is NOT_RUN; no production P1–P3 implementation is authorized by this design amendment.
+
+
+### G3 regression gates F1–F4 (proposed design)
+- F1: Library selection can exceed 100 explicitly, but transfer to one batch rejects 101+ without silently removing any IDs; selected asset count distinct from target count.
+- F2: Frontend and backend both validate date reality, UTC, future and configured minimum lead; injectable clock tests cover boundaries. Proposed initial UI mock default is 10 minutes, pending backend configuration approval.
+- F3: Quick Page chips are canonical; Page dropdown is read-only in Review, editing captions/times never changes Page identity.
+- F4: Block exact duplicate intent by Page+variant+UTC+title+caption; different occurrences and distinct videos remain valid. Any target edit invalidates previous preflight fingerprint.
