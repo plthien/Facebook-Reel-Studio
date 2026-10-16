@@ -38,7 +38,7 @@ def inspect_mp4(path: Path, *, max_bytes: int = 1_073_741_824) -> dict[str, Any]
             raise ValueError("MP4 has no valid video stream or duration")
         result.update({"duration_seconds": duration, "width": video.get("width"),
                        "height": video.get("height"), "ffprobe": "VALIDATED"})
-    except (subprocess.SubprocessError, ValueError, TypeError, json.JSONDecodeError) as exc:
+    except (subprocess.SubprocessError, ValueError, TypeError, json.JSONDecodeError):
         raise ValueError("Invalid MP4 media metadata") from None
     return result
 
