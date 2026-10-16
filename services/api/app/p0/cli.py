@@ -126,9 +126,9 @@ def main() -> int:
                     return 3
                 adapter.finish_reel_publish(pid, session.video_id, s.page_token,
                                             args.title, args.caption, args.route)
-                result = adapter.verify_published_reel(pid, session.video_id, s.page_token)
-                print(json.dumps(result.safe()))
-                return 0 if result.publication_verified else 4
+                mapping = adapter.verify_published_reel(pid, session.video_id, s.page_token)
+                print(json.dumps(mapping.safe()))
+                return 0 if mapping.publication_verified else 4
             else:
                 raise ValueError("Required --page-id, --video-id, --video-file, --title or --caption missing")
             return 0
