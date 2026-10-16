@@ -7,7 +7,6 @@ import json
 import os
 import sys
 from pathlib import Path
-from urllib.parse import urlencode
 
 from app.config import Settings
 from app.integrations.meta.adapter import MetaAdapter

@@ -5,7 +5,15 @@ from pathlib import Path
 from typing import Any
 
 from app.integrations.meta.client import MetaClient, MetaFailure, numeric_id
-from app.integrations.meta.models import Availability, MetricResult, Page, ReelMapping, UploadSession, PublicationState, observed_at
+from app.integrations.meta.models import (
+    Availability,
+    MetricResult,
+    Page,
+    PublicationState,
+    ReelMapping,
+    UploadSession,
+    observed_at,
+)
 
 
 class MetaAdapter:

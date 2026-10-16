@@ -4,7 +4,12 @@ import httpx
 import pytest
 
 from app.integrations.meta.adapter import MetaAdapter
-from app.integrations.meta.client import MetaClient, MetaFailure, RemoteUncertain, validate_upload_url
+from app.integrations.meta.client import (
+    MetaClient,
+    MetaFailure,
+    RemoteUncertain,
+    validate_upload_url,
+)
 from app.integrations.meta.models import Availability, PublicationState
 
 

@@ -4,7 +4,7 @@ from urllib.parse import parse_qs, urlsplit
 import pytest
 
 from app.config import Settings
-from app.p0.oauth import create_auth_url, consume_callback
+from app.p0.oauth import consume_callback, create_auth_url
 
 
 def test_oauth_one_time_state(tmp_path: Path):
