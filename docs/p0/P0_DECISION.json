@@ -5,6 +5,6 @@
   "actual_verified_pages": 0,
   "actual_published_reels": 0,
   "actual_verified_reel_metrics": 0,
-  "tests": "NOT_RUN",
-  "reason": "No authorized Meta App credentials or approved live publishing; code and CI require review."
+  "tests": "18 passed, 1 deselected (live) in Github Actions run 38832139048",
+  "reason": "Adapter/mock tests and CI pass; live Meta app/Page credentials and publish approval missing; manual OAuth, provider contract validation and recovery workflow still incomplete."
 }
