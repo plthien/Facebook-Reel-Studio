@@ -115,7 +115,13 @@ def main() -> int:
                 print(json.dumps(session.safe()))
                 adapter.upload_local_reel(session, s.page_token, Path(args.video_file))
                 status = adapter.get_upload_status(session.video_id, s.page_token)
-                print(json.dumps({"video_id": session.video_id, "processing": status}))
+                processing = status.get("status")
+                phase = processing.get("processing_phase", {}) if isinstance(processing, dict) else {}
+                ready = isinstance(phase, dict) and str(phase.get("status", "")).lower() == "complete"
+                print(json.dumps({"video_id": session.video_id, "processing_ready": ready}))
+                if not ready:
+                    print("Upload not proven ready. Stop without FINISH; reconcile manually.", file=sys.stderr)
+                    return 4
                 if input("Type PUBLISH to submit irreversible FINISH request: ").strip() != "PUBLISH":
                     return 3
                 adapter.finish_reel_publish(pid, session.video_id, s.page_token,
