@@ -63,7 +63,7 @@ def test_video_identity_fail_closed():
 def test_missing_views_never_synthesized():
     a = fixture_adapter(lambda request: httpx.Response(400, json={"error": {"code": 100}}))
     result = a.probe_insights("123", "token", object_type="POST")
-    assert result.availability == Availability.UNSUPPORTED
+    assert result.availability == Availability.UNVERIFIED
     assert result.value is None
 
 
