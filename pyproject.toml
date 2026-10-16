@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=75,<81"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "facebook-reels-studio-p0"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["httpx==0.28.1"]
+[project.optional-dependencies]
+dev = ["pytest==8.3.5", "ruff==0.11.5", "mypy==1.15.0"]
+[project.scripts]
+meta-probe = "app.p0.cli:main"
+[tool.setuptools.packages.find]
+where = ["services/api"]
+include = ["app*"]
+[tool.pytest.ini_options]
+testpaths = ["tests/p0", "tests/live_meta"]
+markers = ["live_meta: authorized Meta API network tests"]
+addopts = "-ra"
+[tool.ruff]
+target-version = "py312"
+line-length = 110
+include = ["services/api/**/*.py", "scripts/**/*.py", "tests/p0/**/*.py", "tests/live_meta/**/*.py"]
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+[tool.mypy]
+python_version = "3.12"
+files = ["services/api/app"]
+

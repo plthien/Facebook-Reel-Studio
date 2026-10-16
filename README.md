@@ -2,7 +2,7 @@
 
 Internal web application for operating **10–50 Facebook Fanpages** owned/managed by the operator: Reels publishing, scheduling, job recovery and per-Reel analytics.
 
-> **Current status:** specification and implementation plan only. No production integration, OAuth approval, live Meta API feasibility proof or application implementation is claimed.
+> **Current status (2026-10-16):** P0 Python Meta API adapter and controlled probe harness are implemented on Draft PR #5. Non-live CI passes. **P0_CODE_READY remains incomplete and P0_LIVE_GO is blocked**: no authorized two-Page live publication, verified Reel views, or Meta credential approval evidence. The UI v2 is still a mockup; production P1–P3 are not implemented.
 
 ## Project documents
 

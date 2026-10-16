@@ -2,3 +2,14 @@ node_modules/
 playwright-report/
 test-results/
 .cache/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.venv/
+evidence/p0/local/

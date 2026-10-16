@@ -1,0 +1,10 @@
+{
+  "as_of": "2026-10-16",
+  "p0_code_ready": "INCOMPLETE",
+  "p0_live_go": "P0_BLOCKED_EXTERNAL",
+  "actual_verified_pages": 0,
+  "actual_published_reels": 0,
+  "actual_verified_reel_metrics": 0,
+  "tests": "18 passed, 1 deselected (live) in Github Actions run 38832139048",
+  "reason": "Adapter/mock tests and CI pass; live Meta app/Page credentials and publish approval missing; manual OAuth, provider contract validation and recovery workflow still incomplete."
+}
