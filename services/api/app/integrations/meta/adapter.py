@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Callable
 from typing import Any
 
-from app.integrations.meta.client import MetaClient, MetaFailure, numeric_id
+from app.integrations.meta.client import MetaClient, MetaFailure, RemoteUncertain, numeric_id
 from app.integrations.meta.models import (
     Availability,
     MetricResult,
@@ -67,6 +68,34 @@ class MetaAdapter:
         return self.client.graph("GET", f"/{numeric_id(video_id)}", token,
                                  params={"fields": "status"})
 
+    def wait_for_upload_ready(self, video_id: str, token: str, *,
+                              max_checks: int = 12, interval: float = 5,
+                              monotonic: Callable[[], float] | None = None,
+                              max_elapsed_seconds: float = 120) -> dict[str, Any]:
+        """Fail closed on unknown, failed, or not-yet-complete processing status."""
+        import time
+
+        if not 1 <= max_checks <= 60 or not 0 <= interval <= 300 or max_elapsed_seconds <= 0:
+            raise ValueError("Invalid polling bounds")
+        clock = monotonic or time.monotonic
+        deadline = clock() + max_elapsed_seconds
+        for attempt in range(max_checks):
+            data = self.get_upload_status(video_id, token)
+            status = data.get("status")
+            phase = status.get("processing_phase") if isinstance(status, dict) else None
+            phase_status = str(phase.get("status", "")).lower() if isinstance(phase, dict) else ""
+            if phase_status in {"complete", "completed"}:
+                return {"video_id": video_id, "ready": True, "method": "processing_phase"}
+            if phase_status in {"error", "failed"}:
+                raise MetaFailure("PROCESSING_FAILED", "STATUS")
+            if not phase_status:
+                raise RemoteUncertain("STATUS", video_id)
+            if attempt + 1 < max_checks:
+                if clock() + interval > deadline:
+                    break
+                self.client.sleep(interval)
+        raise RemoteUncertain("PROCESSING", video_id)
+
     def finish_reel_publish(self, page_id: str, video_id: str, token: str,
                             title: str, description: str, route: str = "page") -> bool:
         endpoint = f"/{numeric_id(page_id)}/video_reels" if route == "page" else "/me/video_reels"
@@ -85,7 +114,7 @@ class MetaAdapter:
         owner = source.get("id") if isinstance(source, dict) else None
         # Provider field semantics must be confirmed in authorized live testing.
         verified = (data.get("id") == vid and owner == pid and
-                    status_text in {"published", "ready", "published_to_page"})
+                    status_text in {"published", "published_to_page"})
         post_id = data.get("post_id")
         permalink = data.get("permalink_url")
         return ReelMapping(page_id=pid, fb_video_id=vid,

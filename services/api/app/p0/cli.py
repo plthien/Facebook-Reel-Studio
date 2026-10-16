@@ -11,6 +11,8 @@ from pathlib import Path
 from app.config import Settings
 from app.integrations.meta.adapter import MetaAdapter
 from app.integrations.meta.client import MetaClient, MetaFailure, RemoteUncertain, numeric_id
+from app.p0.evidence import export_evidence, journal_event, redact
+from app.p0.media import inspect_mp4
 from app.p0.oauth import consume_callback, create_auth_url
 
 
@@ -63,16 +65,21 @@ def main() -> int:
                 raise MetaFailure("MALFORMED_RESPONSE", "OAUTH")
             print("OAuth token issued. Store securely in META_USER_TOKEN; token is not displayed.")
             return 0
-        if args.command in {"export-evidence", "evaluate-gate"}:
-            doc = {"P0_CODE_READY": "UNVERIFIED", "P0_LIVE_GO": "P0_BLOCKED_EXTERNAL",
-                   "reason": "No authorized live evidence supplied"}
-            print(json.dumps(doc))
+        if args.command == "export-evidence":
+            print(json.dumps(export_evidence(Path(args.evidence_dir)), indent=2))
+            return 0
+        if args.command == "evaluate-gate":
+            print(json.dumps({"P0_CODE_READY": "INCOMPLETE",
+                              "P0_LIVE_GO": "P0_BLOCKED_EXTERNAL",
+                              "reason": "Requires approved reviewer and actual authorized live evidence"}))
             return 0
         if args.command == "publish-reel" and (args.dry_run or os.getenv("RUN_META_PUBLISH_TESTS") != "1"):
             print(json.dumps({"mode": "DRY_RUN", "page_id": args.page_id,
                              "video_file": args.video_file, "graph_version": s.graph_version,
                              "published": False}))
             return 0
+        current_page_id: str | None = None
+        current_video_id: str | None = None
         with_client = MetaClient(s.graph_version)
         try:
             adapter = MetaAdapter(with_client)
@@ -92,11 +99,11 @@ def main() -> int:
             elif args.command == "page-health" and pid:
                 print(json.dumps(adapter.page_health(pid, s.page_token).safe()))
             elif args.command == "list-reels" and pid:
-                print(json.dumps(adapter.list_reels(pid, s.page_token)))
+                print(json.dumps(redact(adapter.list_reels(pid, s.page_token))))
             elif args.command in {"inspect-reel", "verify-reel", "reconcile-reel"} and args.video_id:
                 if args.command == "inspect-reel":
                     result = adapter.inspect_reel(args.video_id, s.page_token)
-                    print(json.dumps({"id": result.get("id"), "status": result.get("status")}))
+                    print(json.dumps(redact({"id": result.get("id"), "status": result.get("status")})))
                 else:
                     if not pid:
                         raise ValueError("--page-id required")
@@ -105,28 +112,42 @@ def main() -> int:
                 print(json.dumps(adapter.probe_insights(args.video_id, s.page_token,
                      object_type=args.object_type, metric=args.metric).safe()))
             elif args.command == "publish-reel" and pid and args.video_file and args.title and args.caption:
-                if not Path(args.video_file).is_file():
-                    raise ValueError("Video file does not exist")
+                media = inspect_mp4(Path(args.video_file))
                 page = adapter.page_health(pid, s.page_token)
-                print(f"Target: {page.name} (Page {pid}); file: {Path(args.video_file).name}")
+                current_page_id = pid
+                print(json.dumps({"target_page": page.safe(), "file": Path(args.video_file).name,
+                                  "media": media, "graph_version": s.graph_version}))
+                if "P0" not in args.title.upper() and "TEST" not in args.title.upper():
+                    raise ValueError("P0 test title must explicitly contain P0 or TEST")
                 if input("Type page ID to authorize upload: ").strip() != pid:
                     raise ValueError("Page confirmation failed")
+                import secrets
+                test_id = secrets.token_hex(8)
+                title = args.title + " [P0 " + test_id + "]"
+                caption = args.caption + " [P0 " + test_id + "]"
+                print(json.dumps({"test_id": test_id, "publish_title": title,
+                                  "publish_caption": caption}))
                 session = adapter.start_reel_upload(pid, s.page_token, args.route)
+                current_video_id = session.video_id
+                journal_event(Path(args.evidence_dir), phase="START", page_id=pid,
+                              video_id=session.video_id, state="UPLOAD_STARTED",
+                              extra={"graph_version": s.graph_version, "route": args.route, "test_id": test_id})
                 print(json.dumps(session.safe()))
                 adapter.upload_local_reel(session, s.page_token, Path(args.video_file))
-                status = adapter.get_upload_status(session.video_id, s.page_token)
-                processing = status.get("status")
-                phase = processing.get("processing_phase", {}) if isinstance(processing, dict) else {}
-                ready = isinstance(phase, dict) and str(phase.get("status", "")).lower() == "complete"
-                print(json.dumps({"video_id": session.video_id, "processing_ready": ready}))
-                if not ready:
-                    print("Upload not proven ready. Stop without FINISH; reconcile manually.", file=sys.stderr)
-                    return 4
+                journal_event(Path(args.evidence_dir), phase="UPLOAD", page_id=pid,
+                              video_id=session.video_id, state="PROCESSING")
+                ready_evidence = adapter.wait_for_upload_ready(session.video_id, s.page_token)
+                journal_event(Path(args.evidence_dir), phase="PROCESSING", page_id=pid,
+                              video_id=session.video_id, state="READY_TO_FINISH", extra=ready_evidence)
                 if input("Type PUBLISH to submit irreversible FINISH request: ").strip() != "PUBLISH":
                     return 3
+                journal_event(Path(args.evidence_dir), phase="FINISH", page_id=pid,
+                              video_id=session.video_id, state="FINISH_REQUESTED")
                 adapter.finish_reel_publish(pid, session.video_id, s.page_token,
-                                            args.title, args.caption, args.route)
+                                            title, caption, args.route)
                 mapping = adapter.verify_published_reel(pid, session.video_id, s.page_token)
+                journal_event(Path(args.evidence_dir), phase="VERIFY", page_id=pid,
+                              video_id=session.video_id, state=mapping.state.value, extra=mapping.safe())
                 print(json.dumps(mapping.safe()))
                 return 0 if mapping.publication_verified else 4
             else:
@@ -135,7 +156,11 @@ def main() -> int:
         finally:
             with_client.close()
     except RemoteUncertain as exc:
-        print(json.dumps({"state": "UNCERTAIN", "phase": exc.phase, "video_id": exc.video_id}), file=sys.stderr)
+        known_video_id = exc.video_id if exc.video_id else locals().get("current_video_id")
+        journal_event(Path(args.evidence_dir), phase=exc.phase,
+                      page_id=locals().get("current_page_id"),
+                      video_id=known_video_id, state="UNCERTAIN")
+        print(json.dumps({"state": "UNCERTAIN", "phase": exc.phase, "video_id": known_video_id}), file=sys.stderr)
         return 4
     except MetaFailure as exc:
         print(json.dumps({"error": exc.category, "phase": exc.phase, "code": exc.code}), file=sys.stderr)
